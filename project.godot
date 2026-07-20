@@ -21,6 +21,8 @@ settings/addon_root_folder="res://addons/debug-draw-3d_1.7.3/debug_draw_3d-1.7.3
 
 [display]
 
+window/size/viewport_width=1600
+window/size/viewport_height=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using Color = Godot.Color;
@@ -22,7 +23,8 @@ public class FireChunk{
      public Cell[] Current;
      public Cell[] Next;
      public Vector2I ChunkPosition;
-     
+     public bool Active = false;
+
 
      public FireChunk(int size, Vector2I chunkPos){
          Current = new Cell[size * size];
@@ -41,13 +43,25 @@ public partial class FireManager : Node{
     [Export] private float _fuelBurnRate = 2f;
     [Export] private float _maxBurnDuration = 15f;
     [Export] private float _startingFuel = 25f;
+
+    private  float hexRowOffset = Mathf.Sin(Mathf.Pi / 3f);
     
     private FireChunk[] _chunks;
+    private List<FireChunk> _activeChunks;
 
     private Cell[] _padded;
+    
+    private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
+            new(-1, -1),  new(0, -1),
+        new(-1, 0),           new(+1, 0),
+            new(-1, +1),  new(0, +1)
+    };
+    private static readonly Vector2I[] _oddNeighbors = {
+            new(0, -1),  new(+1, -1),
+        new(-1, 0),           new(+1, 0),
+            new(0, +1),  new(+1, +1)
+    };
 
-    
-    
     public override void _Ready(){
         
         _chunks = new FireChunk[_chunksW * _chunksH];
@@ -163,46 +177,40 @@ public partial class FireManager : Node{
     
     private Cell TryIgnite(Cell[] chunk, int x, int y, Cell cell, double delta){
         if (cell.Fuel <= 0f) return cell;
+        
+        var offsets = y % 2 == 0 ? _evenNeighbors : _oddNeighbors;
 
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue;
-                
+        for (int k = 0; k < 6; k++) {
+            
+            Cell neighbor = chunk[PaddedIdx(x + offsets[k].X, y + offsets[k].Y)];
+            if (neighbor.State != CellState.Burning || neighbor.BurnTimer < _minBurnDurationToSpread) continue;
 
-                Cell neighbor = chunk[PaddedIdx(x + j, y + i)];
-                if (neighbor.State != CellState.Burning || neighbor.BurnTimer < _minBurnDurationToSpread) continue;
-
-                if (GD.Randf() < ComputeSpreadChance(j, i, cell, delta)) {
-                    cell.State = CellState.Burning;
-                    return cell;
-                }
+            if (GD.Randf() < ComputeSpreadChance(cell, delta)) {
+                cell.State = CellState.Burning;
+                return cell;
+            
             }
         }
 
         return cell;
     }
     
-    private float ComputeSpreadChance(int dx, int dy, Cell target, double delta){
+    private float ComputeSpreadChance(Cell target, double delta){
         float chance = _baseSpreadChance * (float) delta;
-        
-        bool isDiagonal = dx != 0 && dy != 0;
-        if (isDiagonal) chance *= 0.7f;
-
         chance *= 1f - Mathf.Clamp(target.Moisture, 0f, 1f);
-
         return Mathf.Clamp(chance, 0f, 1f);
     }
     
     private void DrawGrid(){
         float chunkWidth = _chunkSize * _cellSize;
         foreach (var chunk in _chunks) {
-            Vector3 offset = new Vector3(chunk.ChunkPosition[0] * chunkWidth, 0, chunk.ChunkPosition[1] * chunkWidth);
+            Vector3 offset = new Vector3(chunk.ChunkPosition[0] * chunkWidth, 0, chunk.ChunkPosition[1] * chunkWidth * Mathf.Sin(Mathf.Pi/3f));
 
             for (int y = 0; y < _chunkSize; y++) {
                 for (int x = 0; x < _chunkSize; x++) {
                     Cell cell = chunk.Current[GetChunkIndex(x, y)];
 
-                    Vector3 position = new Vector3(x * _cellSize, 0,  y * _cellSize);
+                    Vector3 position = new Vector3(y % 2 == 0 ? x * _cellSize : x * _cellSize + _cellSize/2f, 0,  y * _cellSize * hexRowOffset);
                     Vector3 size = new Vector3(_cellSize, 0.01f,_cellSize);
                     Color colour = StateToColour(cell);
 
