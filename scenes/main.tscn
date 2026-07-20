@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://14p5po8hyc8a"]
+
+[ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://b5mdrjubj0lg5" path="res://entities/player/demo_camera_movement.gd" id="2_0wfyh"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_7wxnq"]
+size = Vector2(10, 10)
+
+[node name="Node3D" type="Node3D" unique_id=1586865748]
+
+[node name="managers" type="Node3D" parent="." unique_id=1096366848]
+
+[node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482]
+script = ExtResource("1_o5qli")
+_cellSize = 0.5
+Width = 16
+Height = 16
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=768595957]
+transform = Transform3D(1, 0, 0, 0, 0.7322002, 0.68108946, 0, -0.68108946, 0.7322002, 4.2545342, 9.466127, 10.847258)
+script = ExtResource("2_0wfyh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1242017226]
+transform = Transform3D(1, 0, 0, 0, 0, 1.0000001, 0, -1.0000001, 0, 0, -0.5838947, 0)
+mesh = SubResource("QuadMesh_7wxnq")
