@@ -13,8 +13,11 @@ size = Vector2(10, 10)
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482]
 script = ExtResource("1_o5qli")
 _cellSize = 0.5
-Width = 16
-Height = 16
+_chunkSize = 8
+_chunksW = 3
+_chunksH = 3
+_baseSpreadChance = 0.3
+_minBurnDurationToSpread = 0.0
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=768595957]
 transform = Transform3D(1, 0, 0, 0, 0.7322002, 0.68108946, 0, -0.68108946, 0.7322002, 4.2545342, 9.466127, 10.847258)
