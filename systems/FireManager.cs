@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Drawing;
 using Color = Godot.Color;
@@ -23,7 +24,7 @@ public class FireChunk{
      public Cell[] Current;
      public Cell[] Next;
      public Vector2I ChunkPosition;
-     public bool Active = false;
+     public bool IsOnFire = false;
 
 
      public FireChunk(int size, Vector2I chunkPos){
@@ -41,10 +42,9 @@ public partial class FireManager : Node{
     [Export] private float _baseSpreadChance = .3f;
     [Export] private float _minBurnDurationToSpread = 2f;
     [Export] private float _fuelBurnRate = 2f;
-    [Export] private float _maxBurnDuration = 15f;
     [Export] private float _startingFuel = 25f;
 
-    private  float hexRowOffset = Mathf.Sin(Mathf.Pi / 3f);
+    private readonly float _hexRowOffset = Mathf.Sin(Mathf.Pi / 3f);
     
     private FireChunk[] _chunks;
     private List<FireChunk> _activeChunks;
@@ -66,6 +66,8 @@ public partial class FireManager : Node{
         
         _chunks = new FireChunk[_chunksW * _chunksH];
 
+        _activeChunks = new List<FireChunk>();
+
         for (int i = 0; i < _chunks.Length; i++) {
             Vector2I chunkPos = new Vector2I(i % _chunksW, i / _chunksW);
             _chunks[i] = new FireChunk(_chunkSize, chunkPos);
@@ -79,6 +81,7 @@ public partial class FireManager : Node{
                 curChunk.Current[j].State = CellState.Unburnt;
                 curChunk.Current[j].Fuel = _startingFuel;
                 curChunk.Current[j].Moisture = 0f;
+                curChunk.IsOnFire = true;
             }
         }
 
@@ -139,14 +142,27 @@ public partial class FireManager : Node{
     private int PaddedIdx(int x, int y) => (y + 1) * (_chunkSize + 2) + (x + 1);
     
     private void CalculateTick(double delta){
-        foreach (var chunk in _chunks){
-            FillPadded(chunk);                   
-            for (int y = 0; y < _chunkSize; y++)
-            for (int x = 0; x < _chunkSize; x++)
-                chunk.Next[y * _chunkSize + x] = CalculateCell(_padded, x, y, delta);
+        
+        _activeChunks.Clear();
+        foreach (var chunk in _chunks) {
+            if (NeighboursHaveFire(chunk)) _activeChunks.Add(chunk);
         }
 
-        foreach (var chunk in _chunks)               
+        foreach (var chunk in _activeChunks) {
+            FillPadded(chunk);
+            bool hasFire = false;
+            for (int y = 0; y < _chunkSize; y++) {
+                for (int x = 0; x < _chunkSize; x++) {
+                    Cell cell = CalculateCell(_padded, x, y, delta);
+                    chunk.Next[y * _chunkSize + x] = cell;
+                    hasFire |= cell.State == CellState.Burning;
+                }
+            }
+
+            chunk.IsOnFire = hasFire;
+        }
+
+        foreach (var chunk in _activeChunks)               
             (chunk.Current, chunk.Next) = (chunk.Next, chunk.Current);
     }
     
@@ -162,7 +178,7 @@ public partial class FireManager : Node{
                 cell.BurnTimer += (float)delta;
                 cell.Fuel -= _fuelBurnRate * (float)delta;
 
-                if (cell.Fuel <= 0f || cell.BurnTimer >= _maxBurnDuration)
+                if (cell.Fuel <= 0f)
                 {
                     cell.State = CellState.Burnt;
                     cell.Fuel = 0f;
@@ -174,6 +190,7 @@ public partial class FireManager : Node{
         }
 
     }
+    
     
     private Cell TryIgnite(Cell[] chunk, int x, int y, Cell cell, double delta){
         if (cell.Fuel <= 0f) return cell;
@@ -195,6 +212,19 @@ public partial class FireManager : Node{
         return cell;
     }
     
+    private bool NeighboursHaveFire(FireChunk chunk){
+        if (chunk.IsOnFire) return true;
+        Vector2I p = chunk.ChunkPosition;
+        for (int dy = -1; dy <= 1; dy++){
+            for (int dx = -1; dx <= 1; dx++){
+                if (dx == 0 && dy == 0) continue;
+                FireChunk n = GetChunk(p.X + dx, p.Y + dy);
+                if (n != null && n.IsOnFire) return true;
+            }
+        }
+        return false;
+    }
+    
     private float ComputeSpreadChance(Cell target, double delta){
         float chance = _baseSpreadChance * (float) delta;
         chance *= 1f - Mathf.Clamp(target.Moisture, 0f, 1f);
@@ -210,9 +240,9 @@ public partial class FireManager : Node{
                 for (int x = 0; x < _chunkSize; x++) {
                     Cell cell = chunk.Current[GetChunkIndex(x, y)];
 
-                    Vector3 position = new Vector3(y % 2 == 0 ? x * _cellSize : x * _cellSize + _cellSize/2f, 0,  y * _cellSize * hexRowOffset);
+                    Vector3 position = new Vector3(y % 2 == 0 ? x * _cellSize : x * _cellSize + _cellSize/2f, 0,  y * _cellSize * _hexRowOffset);
                     Vector3 size = new Vector3(_cellSize, 0.01f,_cellSize);
-                    Color colour = StateToColour(cell);
+                    Color colour = GetColour(cell);
 
                     DrawCell(position + offset, size * .9f, colour);
                 }
@@ -220,7 +250,7 @@ public partial class FireManager : Node{
         }
         
     }
-    private Color StateToColour(Cell cell) => cell.State switch
+    private Color GetColour(Cell cell) => cell.State switch
     {
         CellState.Unburnt  => new Color(0.15f, 0.5f, 0.1f),
         CellState.Burning  => Colors.OrangeRed.Lerp(Colors.Yellow, cell.Fuel / _startingFuel),
