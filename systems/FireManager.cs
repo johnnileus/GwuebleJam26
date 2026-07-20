@@ -48,8 +48,10 @@ public partial class FireManager : Node{
     
     private FireChunk[] _chunks;
     private List<FireChunk> _activeChunks;
-
     private Cell[] _padded;
+
+    private FastNoiseLite noise = new();
+    [Export] private float _moistureScale = 1.5f;
     
     private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
             new(-1, -1),  new(0, -1),
@@ -75,17 +77,25 @@ public partial class FireManager : Node{
 
         _padded = new Cell[(_chunkSize + 2) * (_chunkSize + 2)];
 
-        for (int i = 0; i < _chunks.Length; i++) {
-            var curChunk = _chunks[i];
-            for (int j = 0; j < _chunks[i].Current.Length; j++) {
-                curChunk.Current[j].State = CellState.Unburnt;
-                curChunk.Current[j].Fuel = _startingFuel;
-                curChunk.Current[j].Moisture = 0f;
-                curChunk.IsOnFire = true;
+        
+        foreach (var chunk in _chunks){
+            for (int y = 0; y < _chunkSize; y++){
+                for (int x = 0; x < _chunkSize; x++){
+                    int gx = chunk.ChunkPosition.X * _chunkSize + x;
+                    int gy = chunk.ChunkPosition.Y * _chunkSize + y;
+                    float moisture = (noise.GetNoise2D(gx*2f, gy*2f) + 1f) * 0.5f;
+
+                    chunk.Current[y * _chunkSize + x] = new Cell {
+                        State = CellState.Unburnt,
+                        Fuel = _startingFuel,
+                        Moisture = moisture * _moistureScale,
+                    };
+                }
             }
         }
 
         _chunks[0].Current[0].State = CellState.Burning;
+        _chunks[0].IsOnFire = true;
     }
 
 
@@ -252,7 +262,7 @@ public partial class FireManager : Node{
     }
     private Color GetColour(Cell cell) => cell.State switch
     {
-        CellState.Unburnt  => new Color(0.15f, 0.5f, 0.1f),
+        CellState.Unburnt  => new Color(0.15f, 0.2f + cell.Moisture, 0.1f),
         CellState.Burning  => Colors.OrangeRed.Lerp(Colors.Yellow, cell.Fuel / _startingFuel),
         CellState.Burnt => new Color(0.12f, 0.1f, 0.1f), _ => Colors.Magenta
     };
