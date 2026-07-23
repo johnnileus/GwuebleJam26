@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bxmxbmlxhv3lr"
+path="res://.godot/imported/FireCalculator.glsl-3c92c3bb183de409406038d6b462df19.res"
+
+[deps]
+
+source_file="res://systems/FireCalculator.glsl"
+dest_files=["res://.godot/imported/FireCalculator.glsl-3c92c3bb183de409406038d6b462df19.res"]
+
+[params]
+
