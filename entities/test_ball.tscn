@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://y1xjra5y0pd2"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_g4v3v"]
+radius = 0.1
+height = 0.2
+radial_segments = 4
+rings = 1
+
+[node name="Node3D" type="Node3D" unique_id=1542488537]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=10646274]
+mesh = SubResource("SphereMesh_g4v3v")

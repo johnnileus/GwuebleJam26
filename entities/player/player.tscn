@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://kq3iiumbe5h5"]
+
+[ext_resource type="Script" uid="uid://r73tad4cifih" path="res://entities/player/Player.cs" id="1_symyc"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7wxnq"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7wxnq"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_g4v3v"]
+
+[node name="Player" type="CharacterBody3D" unique_id=863245587 node_paths=PackedStringArray("Model")]
+script = ExtResource("1_symyc")
+Model = NodePath("Model")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1883212739]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_7wxnq")
+
+[node name="Model" type="Node3D" parent="." unique_id=1504343207]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Model" unique_id=1963182519]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_7wxnq")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Model" unique_id=1669027870]
+transform = Transform3D(0.45000002, 0, 0, 0, 0.38, 0, 0, 0, 0.5, 0, 1.4, 0.39999998)
+mesh = SubResource("BoxMesh_g4v3v")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=261486063]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.8660254, 0, -0.8660254, 0.49999997, 0, 14, 7)

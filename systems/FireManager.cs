@@ -16,7 +16,6 @@ public enum CellState : byte{
 
 public struct Cell{
     public CellState State;
-    public float Fuel;
     public float Moisture;
     public float BurnTimer;
 }
@@ -45,8 +44,7 @@ public partial class FireManager : Node{
 
     [Export] private float _baseSpreadChance = .3f;
     [Export] private float _minBurnDurationToSpread = 2f;
-    [Export] private float _fuelBurnRate = 2f;
-    [Export] private float _startingFuel = 25f;
+    [Export] private float _burnTime = 12f;
 
     private readonly float _hexRowOffset = Mathf.Sin(Mathf.Pi / 3f);
     
@@ -59,6 +57,10 @@ public partial class FireManager : Node{
 
     private int _totalTicks = 0;
     
+    private Vector3 globalOffset;
+
+    [Export] private PackedScene testBall;
+
 
     
     private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
@@ -73,12 +75,10 @@ public partial class FireManager : Node{
     };
 
     public override void _Ready(){
-
-
         
         _chunks = new FireChunk[_gridW * _gridH];
         
-
+        globalOffset = new Vector3(_cellSize * _interiorSize * _gridW / 2f, 0, _cellSize * _interiorSize * _gridH / 2f);
         _activeChunks = new List<FireChunk>();
 
         for (int i = 0; i < _chunks.Length; i++) {
@@ -98,37 +98,87 @@ public partial class FireManager : Node{
 
                     chunk.Current[y * _interiorSize + x] = new Cell {
                         State = CellState.Unburnt,
-                        Fuel = _startingFuel,
                         Moisture = moisture * _moistureScale,
                     };
                 }
             }
         }
 
-        _chunks[0].Current[0].State = CellState.Burning;
+
         _chunks[0].IsOnFire = true;
-        
 
     }
     
     public override void _Process(double delta){
+
+
+        if (Input.IsActionJustPressed("player_click")) {
+            IgniteAt(GetClickOnPlane(GetViewport().GetMousePosition()));
+
+        }
+        
+        
         var t1 = Time.GetTicksUsec();
         CalculateTick(delta);
         var t2 = Time.GetTicksUsec();
-        GD.Print($"took {(t2-t1)/1000f}ms");
+        // GD.Print($"took {(t2-t1)/1000f}ms, tick: {_totalTicks}");
 
         if (_drawGrid)
             DrawGrid();
     }
+
+    private Vector3 GetClickOnPlane(Vector2 mousePos){
+
+
+        var camera = GetViewport().GetCamera3D();
+        if (camera == null) return Vector3.Zero;
+
+        Vector3 rayOrigin = camera.ProjectRayOrigin(mousePos);
+        Vector3 rayDirection = camera.ProjectRayNormal(mousePos);
+
+        // Solve for where the ray crosses y = planeY
+        if (Mathf.Abs(rayDirection.Y) < 0.0001f) return Vector3.Zero; // ray parallel to plane
+
+        float t = -rayOrigin.Y / rayDirection.Y;
+        if (t < 0) return Vector3.Zero; // plane is behind the camera
+
+        return rayOrigin + rayDirection * t;
+    }
     
+    public void IgniteAt(Vector3 globalPos){
+        
+        var ball = testBall.Instantiate<Node3D>();
+        ball.Position = globalPos;
+        AddChild(ball);
+        
+        Vector3 gridPos = globalPos + globalOffset;
+
+        int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
+        int yLocal = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
+        float rowShift = yLocal % 2 == 0 ? 0f : _cellSize / 2f;
+        int gx = Mathf.RoundToInt((gridPos.X - rowShift) / _cellSize);
+
+        int cx = Mathf.FloorToInt(gx / (float)_interiorSize);
+        int cy = Mathf.FloorToInt(gy / (float)_interiorSize);
+
+        FireChunk chunk = GetChunk(cx, cy);
+        if (chunk == null) return;
+
+        int idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
+        chunk.Current[idx].State = CellState.Burning;
+        chunk.IsOnFire = true;   // so CalculateTick treats this chunk as active
+    }
+
+    public FireChunk GetClickedChunk(){
+        return null;
+    }
     
     private FireChunk GetChunk(int cx, int cy){
         return cx < 0 || cx >= _gridW || cy < 0 || cy >= _gridH ? null : _chunks[cy * _gridW + cx];
     }
 
-        
-    
-    public int GetChunkIndex(int x, int y) {
+
+    private int GetChunkIndex(int x, int y) {
         int wrappedX = ((x % _interiorSize) + _interiorSize) % _interiorSize;
         int wrappedY = ((y % _interiorSize) + _interiorSize) % _interiorSize;
         return wrappedY * _interiorSize + wrappedX;
@@ -182,7 +232,7 @@ public partial class FireManager : Node{
                 for (int x = 0; x < _interiorSize; x++) {
                     Cell cell = CalculateCell(_padded, x, y, delta);
                     chunk.Next[y * _interiorSize + x] = cell;
-                    hasFire |= cell.State == CellState.Burning;
+                    if (cell.State == CellState.Burning) hasFire = true;
                 }
             }
         
@@ -193,7 +243,7 @@ public partial class FireManager : Node{
         
 
         _totalTicks++;
-        GD.Print($"Ticks elapsed: {_totalTicks}");
+
     }
 
 
@@ -206,12 +256,9 @@ public partial class FireManager : Node{
                 return TryIgnite(chunk, x, y, cell, delta);
             case CellState.Burning:
                 cell.BurnTimer += (float)delta;
-                cell.Fuel -= _fuelBurnRate * (float)delta;
 
-                if (cell.Fuel <= 0f)
-                {
+                if (cell.BurnTimer >= _burnTime) {
                     cell.State = CellState.Burnt;
-                    cell.Fuel = 0f;
                 }
                 return cell;
             case CellState.Burnt:
@@ -223,7 +270,7 @@ public partial class FireManager : Node{
     
     
     private Cell TryIgnite(Cell[] chunk, int x, int y, Cell cell, double delta){
-        if (cell.Fuel <= 0f) return cell;
+        if (cell.State == CellState.Burnt) return cell;
         
         var offsets = y % 2 == 0 ? _evenNeighbors : _oddNeighbors;
 
@@ -264,7 +311,7 @@ public partial class FireManager : Node{
     private void DrawGrid(){
         float chunkWidth = _interiorSize * _cellSize;
         foreach (var chunk in _chunks) {
-            Vector3 offset = new Vector3(chunk.ChunkPosition[0] * chunkWidth, 0, chunk.ChunkPosition[1] * chunkWidth * Mathf.Sin(Mathf.Pi/3f));
+            Vector3 chunkOffset = new Vector3(chunk.ChunkPosition[0] * chunkWidth, 0, chunk.ChunkPosition[1] * chunkWidth * Mathf.Sin(Mathf.Pi/3f));
 
             for (int y = 0; y < _interiorSize; y++) {
                 for (int x = 0; x < _interiorSize; x++) {
@@ -274,7 +321,7 @@ public partial class FireManager : Node{
                     Vector3 size = new Vector3(_cellSize, 0.01f,_cellSize);
                     Color colour = GetColour(cell);
 
-                    DrawCell(position + offset, size * .9f, colour);
+                    DrawCell(position + chunkOffset - globalOffset, size * .9f, colour);
                 }
             }
         }
@@ -282,16 +329,13 @@ public partial class FireManager : Node{
     }
     private Color GetColour(Cell cell) => cell.State switch
     {
-        CellState.Unburnt  => new Color(0.15f, 0.2f + cell.Moisture, 0.1f),
-        CellState.Burning  => Colors.OrangeRed.Lerp(Colors.Yellow, cell.Fuel / _startingFuel),
+        CellState.Unburnt  => new Color(0.15f, 0.6f - cell.Moisture, 0.1f),
+        CellState.Burning  => Colors.OrangeRed.Lerp(Colors.Yellow, _burnTime / cell.BurnTimer ),
         CellState.Burnt => new Color(0.12f, 0.1f, 0.1f), _ => Colors.Magenta
     };
 
     private void DrawCell(Vector3 pos, Vector3 size, Color col){
-        
-        DebugDraw3D.DrawBox(pos, Quaternion.Identity, size, col);
-        
-
+        DebugDraw3D.DrawBox(pos, Quaternion.Identity, size, col, is_box_centered: true);
     }
 
     

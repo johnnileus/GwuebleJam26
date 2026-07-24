@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://14p5po8hyc8a"]
 
 [ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="1_o5qli"]
-[ext_resource type="Script" uid="uid://b5mdrjubj0lg5" path="res://entities/player/demo_camera_movement.gd" id="2_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="2_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="2_sugp2"]
 
-[sub_resource type="QuadMesh" id="QuadMesh_7wxnq"]
-size = Vector2(10, 10)
+[sub_resource type="BoxShape3D" id="BoxShape3D_7wxnq"]
+size = Vector3(100, 0.1, 100)
 
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
@@ -12,19 +13,19 @@ size = Vector2(10, 10)
 
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482]
 script = ExtResource("1_o5qli")
-_drawGrid = false
-_cellSize = 0.2
-_interiorSize = 32
-_gridW = 16
-_gridH = 16
-_baseSpreadChance = 3.0
-_minBurnDurationToSpread = 0.0
-_moistureScale = 1.0
+_cellSize = 0.125
+_interiorSize = 128
+_gridW = 1
+_gridH = 1
+_baseSpreadChance = 0.5
+_minBurnDurationToSpread = 1.0
+_moistureScale = 0.7
+testBall = ExtResource("2_sugp2")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=768595957]
-transform = Transform3D(1, 0, 0, 0, 0.7322002, 0.68108946, 0, -0.68108946, 0.7322002, 4.2545342, 9.466127, 10.847258)
-script = ExtResource("2_0wfyh")
+[node name="Player" parent="." unique_id=863245587 instance=ExtResource("2_0wfyh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1242017226]
-transform = Transform3D(1, 0, 0, 0, 0, 1.0000001, 0, -1.0000001, 0, 0, -0.5838947, 0)
-mesh = SubResource("QuadMesh_7wxnq")
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=68127446]
+shape = SubResource("BoxShape3D_7wxnq")
