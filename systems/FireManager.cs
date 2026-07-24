@@ -38,7 +38,6 @@ public class FireChunk{
 
 public partial class FireManager : Node{
 
-    [Export] private bool _useGpu = true;
     [Export] private bool _drawGrid = true;
     
     [Export] private float _cellSize;
@@ -60,13 +59,7 @@ public partial class FireManager : Node{
 
     private int _totalTicks = 0;
     
-    //gpu
-    private RenderingDevice _rd;
-    private RDShaderFile _shaderFile;
-    private Rid _shader, _pipeline, _buffer, _uniformSet;
-    private int _bufferCellCount; 
-    private float[] _gpuScratch;
-    private byte[] _stagingBytes;
+
     
     private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
             new(-1, -1),  new(0, -1),
@@ -115,7 +108,6 @@ public partial class FireManager : Node{
         _chunks[0].Current[0].State = CellState.Burning;
         _chunks[0].IsOnFire = true;
         
-        InitialiseGpu();
 
     }
     
@@ -128,94 +120,7 @@ public partial class FireManager : Node{
         if (_drawGrid)
             DrawGrid();
     }
-
-    private void InitialiseGpu(){
-        _rd = RenderingServer.CreateLocalRenderingDevice();
-        _shaderFile = GD.Load<RDShaderFile>("res://systems/FireCalculator.glsl");
-        _shader = _rd.ShaderCreateFromSpirV(_shaderFile.GetSpirV());
-        _pipeline = _rd.ComputePipelineCreate(_shader);
-        
-        // one buffer holding every cell of every chunk
-        _bufferCellCount = _chunks.Length * _interiorSize * _interiorSize;
-        _gpuScratch = new float[_bufferCellCount * 4];
-        _stagingBytes = new byte[_gpuScratch.Length * sizeof(float)];
-
-        var byteLen = (uint)(_gpuScratch.Length * sizeof(float));
-        _buffer = _rd.StorageBufferCreate(byteLen);   // allocate empty, fill per tick
-
-        var uniform = new RDUniform {
-            UniformType = RenderingDevice.UniformType.StorageBuffer,
-            Binding = 0
-        };
-        uniform.AddId(_buffer);
-        _uniformSet = _rd.UniformSetCreate(new Array<RDUniform> { uniform }, _shader, 0);
-    }
-
-    public void GlslTest(FireChunk chunk){
-
-        // Prepare our data. We use floats in the shader, so we need 32 bit.
-        Cell[] src = chunk.Current;
-        float[] input = new float[src.Length * 4];
-
-        for (int i = 0; i < src.Length; i++) {
-            int b = i * 4;
-            input[b + 0] = (float)src[i].State;
-            input[b + 1] = src[i].Fuel;
-            input[b + 2] = src[i].Moisture;
-            input[b + 3] = src[i].BurnTimer;
-            GD.Print($"before: {src[i].Fuel}");
-        }
-        
-        var inputBytes = new byte[input.Length * sizeof(float)];
-        Buffer.BlockCopy(input, 0, inputBytes, 0, inputBytes.Length);
-        
-        // Create a storage buffer that can hold our float values.
-        // Each float has 4 bytes (32 bit) so 10 x 4 = 40 bytes
-        var buffer = _rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
-        
-        // Create a uniform to assign the buffer to the rendering device
-        var uniform = new RDUniform {
-            UniformType = RenderingDevice.UniformType.StorageBuffer,
-            Binding = 0
-        };
-        
-        uniform.AddId(buffer);
-        var uniformSet = _rd.UniformSetCreate(new Array<RDUniform> { uniform }, _shader, 0);
-        
-        // Create a compute pipeline
-        var pipeline = _rd.ComputePipelineCreate(_shader);
-        var computeList = _rd.ComputeListBegin();
-        _rd.ComputeListBindComputePipeline(computeList, pipeline);
-        _rd.ComputeListBindUniformSet(computeList, uniformSet, 0);
-        uint groups = (uint) Mathf.CeilToInt(src.Length / 64f);
-        _rd.ComputeListDispatch(computeList, xGroups: groups, yGroups: 1, zGroups: 1);
-        _rd.ComputeListEnd();
-        
-        // Submit to GPU and wait for sync
-        _rd.Submit();
-        _rd.Sync();
-        
-        // Read back the data from the buffers
-        var outputBytes = _rd.BufferGetData(buffer);
-        var output = new float[input.Length];
-        Buffer.BlockCopy(outputBytes, 0, output, 0, outputBytes.Length);
-
-        for (int i = 0; i < src.Length; i++) {
-            int b = i * 4;
-            chunk.Next[i] = new Cell {
-                State = (CellState)(byte)(output[b + 0]),
-                Fuel = output[b + 1],
-                Moisture = output[b + 2],
-                BurnTimer = output[b + 3],
-            };
-            GD.Print($"after:{chunk.Next[i].Fuel}");
-        }
-
-        _rd.FreeRid(buffer);
-
-    }
-
-
+    
     
     private FireChunk GetChunk(int cx, int cy){
         return cx < 0 || cx >= _gridW || cy < 0 || cy >= _gridH ? null : _chunks[cy * _gridW + cx];
@@ -263,90 +168,35 @@ public partial class FireManager : Node{
     
     private void CalculateTick(double delta){
 
-        if (_useGpu) {
-            CalculateGpuTick();
-            foreach (var chunk in _chunks)               
-                (chunk.Current, chunk.Next) = (chunk.Next, chunk.Current);
+
+
+        _activeChunks.Clear();
+        foreach (var chunk in _chunks) {
+            if (NeighboursHaveFire(chunk)) _activeChunks.Add(chunk);
         }
-        else {
-            _activeChunks.Clear();
-            foreach (var chunk in _chunks) {
-                if (NeighboursHaveFire(chunk)) _activeChunks.Add(chunk);
-            }
-            
-            foreach (var chunk in _activeChunks) {
-                FillPadded(chunk);
-                bool hasFire = false;
-                for (int y = 0; y < _interiorSize; y++) {
-                    for (int x = 0; x < _interiorSize; x++) {
-                        Cell cell = CalculateCell(_padded, x, y, delta);
-                        chunk.Next[y * _interiorSize + x] = cell;
-                        hasFire |= cell.State == CellState.Burning;
-                    }
+        
+        foreach (var chunk in _activeChunks) {
+            FillPadded(chunk);
+            bool hasFire = false;
+            for (int y = 0; y < _interiorSize; y++) {
+                for (int x = 0; x < _interiorSize; x++) {
+                    Cell cell = CalculateCell(_padded, x, y, delta);
+                    chunk.Next[y * _interiorSize + x] = cell;
+                    hasFire |= cell.State == CellState.Burning;
                 }
-            
-                chunk.IsOnFire = hasFire;
             }
-            foreach (var chunk in _activeChunks)               
-                (chunk.Current, chunk.Next) = (chunk.Next, chunk.Current);
+        
+            chunk.IsOnFire = hasFire;
         }
+        foreach (var chunk in _activeChunks)               
+            (chunk.Current, chunk.Next) = (chunk.Next, chunk.Current);
+        
 
         _totalTicks++;
         GD.Print($"Ticks elapsed: {_totalTicks}");
     }
 
-    private void CalculateGpuTick()
-    {
-        
-        
-        int cellsPerChunk = _interiorSize * _interiorSize;
 
-        // pack all chunks into the scratch array
-        for (int c = 0; c < _chunks.Length; c++) {
-            Cell[] src = _chunks[c].Current;
-            int baseCell = c * cellsPerChunk;
-            for (int i = 0; i < src.Length; i++) {
-                int b = (baseCell + i) * 4;
-                _gpuScratch[b + 0] = (float)src[i].State;
-                _gpuScratch[b + 1] = src[i].Fuel;
-                _gpuScratch[b + 2] = src[i].Moisture;
-                _gpuScratch[b + 3] = src[i].BurnTimer;
-            }
-        }
-
-        // upload into the existing buffer (no realloc)
-        Buffer.BlockCopy(_gpuScratch, 0, _stagingBytes, 0, _stagingBytes.Length);
-        _rd.BufferUpdate(_buffer, 0, (uint)_stagingBytes.Length, _stagingBytes);
-
-        // dispatch once for every cell
-        long list = _rd.ComputeListBegin();
-        _rd.ComputeListBindComputePipeline(list, _pipeline);
-        _rd.ComputeListBindUniformSet(list, _uniformSet, 0);
-        uint groups = (uint)Mathf.CeilToInt(_bufferCellCount / 64f);
-        _rd.ComputeListDispatch(list, groups, 1, 1);
-        _rd.ComputeListEnd();
-
-        _rd.Submit();
-        _rd.Sync();
-
-        // read back
-        var outBytes = _rd.BufferGetData(_buffer);
-        Buffer.BlockCopy(outBytes, 0, _gpuScratch, 0, outBytes.Length);
-
-        for (int c = 0; c < _chunks.Length; c++) {
-            Cell[] dst = _chunks[c].Next;
-            int baseCell = c * cellsPerChunk;
-            for (int i = 0; i < dst.Length; i++) {
-                int b = (baseCell + i) * 4;
-                dst[i] = new Cell {
-                    State     = (CellState)(byte)_gpuScratch[b + 0],
-                    Fuel      = _gpuScratch[b + 1],
-                    Moisture  = _gpuScratch[b + 2],
-                    BurnTimer = _gpuScratch[b + 3],
-                };
-            }
-        }
-    }
 
     private Cell CalculateCell(Cell[] chunk, int x, int y, double delta){
         Cell cell = chunk[PaddedIdx(x, y)];
@@ -443,6 +293,6 @@ public partial class FireManager : Node{
         
 
     }
-    
+
     
 }
