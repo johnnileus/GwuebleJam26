@@ -136,10 +136,12 @@ public partial class FireManager : Node{
         Vector3 rayOrigin = camera.ProjectRayOrigin(mousePos);
         Vector3 rayDirection = camera.ProjectRayNormal(mousePos);
 
+
         if (Mathf.Abs(rayDirection.Y) < 0.0001f) return Vector3.Zero; 
 
         float t = -rayOrigin.Y / rayDirection.Y;
         if (t < 0) return Vector3.Zero; 
+
 
         return rayOrigin + rayDirection * t;
     }
