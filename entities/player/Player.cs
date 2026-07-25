@@ -60,21 +60,25 @@ public partial class Player : CharacterBody3D
         
         if (Input.IsActionJustPressed("debug_ignite")) {
             _fireMgr.IgniteAt(_fireMgr.GetClickOnPlane(GetViewport().GetMousePosition()));
-        } else if (Input.IsActionJustPressed("player_leftclick")) { // pour water
-            if (_waterGathered >= 0) {
-                GD.Print(_waterGathered);
+        } else if (Input.IsActionPressed("player_leftclick")) { // pour water
+            if (_waterGathered > 0) {
                 Vector3 fwd = Model.GlobalTransform.Basis.Z;
-                _fireMgr.WetAt(Position + fwd);
-                ModifyWater(-_waterPerUse);
+                Cell cell = _fireMgr.GetCellAt(Position + fwd);
+                if (FireManager.CanBecomeWet(cell.State)) {
+                    GD.Print(_waterGathered);
+                    _fireMgr.WetAt(Position + fwd);
+                    ModifyWater(-_waterPerUse);
+                }
+                
             }
 
         } else if (Input.IsActionJustPressed("player_rightclick")) { // throw water
-            if (_waterGathered >= 0) {
+            if (_waterGathered > 0) {
                 Vector3 dir = Model.GlobalTransform.Basis.Z;
                 dir = dir.Normalized();
                 float spread   = Mathf.DegToRad(_splashSpread);
 
-                int splashNumber = Mathf.CeilToInt(_waterGathered/_waterPerUse);
+                int splashNumber = Mathf.CeilToInt(_waterGathered/(_waterPerUse / 2f));
                 for (int i = 0; i < splashNumber; i++) {
                     float t     = splashNumber == 1 ? 0.5f : i / (float)(splashNumber - 1);
                     float angle = Mathf.Lerp(-spread * 0.5f, spread * 0.5f, t);
