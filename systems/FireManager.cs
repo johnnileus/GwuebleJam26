@@ -265,10 +265,11 @@ public partial class FireManager : Node{
         }
     }
 
-    private static bool CanBecomeWet(CellState state) =>
+    public static bool CanBecomeWet(CellState state) =>
         state != CellState.Water &&
         state != CellState.Forest &&
-        state != CellState.Burnt;
+        state != CellState.Burnt &&
+        state != CellState.Wet;
 
     public ref Cell GetCellAt(Vector3 globalPos){
         var ball = _testBall.Instantiate<Node3D>();
