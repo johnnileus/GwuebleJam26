@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://14p5po8hyc8a"]
+[gd_scene format=3 uid="uid://sqw7xvq7cqn4"]
 
 [ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="2_0wfyh"]
@@ -9,7 +9,6 @@
 [ext_resource type="Script" uid="uid://780ldu3few43" path="res://systems/FireParticlePool.cs" id="7_fpp"]
 [ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="8_firecfg"]
 [ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="9_smokecfg"]
-[ext_resource type="PackedScene" uid="uid://ck6e8uwxal5sa" path="res://scenes/pause_menu/pause_menu.tscn" id="8_tipki"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_tefeu"]
 
@@ -44,11 +43,6 @@ _minimapNode = NodePath("../../Minimap/map")
 
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("2_0wfyh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
-_waterSplash = ExtResource("5_o6xl0")
-_splashSpread = 15.0
-_splashSpeed = 17.0
-_splashUpSpeed = 10.0
-_waterGatherRate = 40.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
@@ -78,5 +72,3 @@ expand_mode = 1
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]
 transform = Transform3D(0.8367695, 0.0714435, 0.5428746, -0.442693, 0.6717494, 0.5939494, -0.32224172, -0.73732543, 0.5937268, 0, 0, 0)
-
-[node name="PauseMenu" parent="." unique_id=980596298 instance=ExtResource("8_tipki")]
