@@ -21,6 +21,7 @@ public struct Cell{
     public CellState State;
     public float Moisture;
     public float BurnTimer;
+    public int ParticleSlot;
 }
 
 
@@ -117,7 +118,8 @@ public partial class FireManager : Node{
                     int gy = chunk.ChunkPosition.Y * _interiorSize + y;
 
                     Cell cell = new Cell();
-                    
+                    cell.ParticleSlot = -1;
+
                     Color c = image.GetPixel(gx, gy);
                     if (c.B > .1f) {
                         cell.State = CellState.Water;
@@ -150,6 +152,8 @@ public partial class FireManager : Node{
         var t2 = Time.GetTicksUsec();
         // GD.Print($"took {(t2-t1)/1000f}ms, tick: {_totalTicks}");
 
+        FireParticlePool.Instance?.AdvanceDyingSlots(delta);
+
         UpdateMinimap();
         
         if (_drawGrid)
@@ -157,6 +161,8 @@ public partial class FireManager : Node{
         
         DebugUI.Instance.AddLine($"Time taken: {(t2-t1)/1000f}ms, tick: {_totalTicks}");
         DebugUI.Instance.AddLine($"Active chunks: {_activeChunks.Count}");
+        if (FireParticlePool.Instance != null)
+            DebugUI.Instance.AddLine($"Particle systems: {FireParticlePool.Instance.ActiveSlotCount} / {FireParticlePool.Instance.MaxConcurrentCells}");
     }
 
     private void SetupMinimap(){
@@ -225,17 +231,29 @@ public partial class FireManager : Node{
         if (chunk == null) return;
 
         int idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
-        chunk.Current[idx].State = CellState.Burning;
-        chunk.IsOnFire = true; 
+        ref Cell cell = ref chunk.Current[idx];
+
+        if (cell.State == CellState.Burning) return;
+
+        cell.State = CellState.Burning;
+        cell.ParticleSlot = SpawnParticlesAt(globalPos);
+        chunk.IsOnFire = true;
+    }
+
+    private int SpawnParticlesAt(Vector3 globalPos){
+        return FireParticlePool.Instance?.AcquireSlot(globalPos) ?? -1;
     }
 
     public void WetAt(Vector3 globalPos){
 
         ref Cell cell = ref GetCellAt(globalPos);
-        
-        if (CanBecomeWet(cell.State)) {
-            cell.State = CellState.Wet;
 
+        if (CanBecomeWet(cell.State)) {
+            if (cell.State == CellState.Burning && cell.ParticleSlot >= 0) {
+                FireParticlePool.Instance.Release(cell.ParticleSlot);
+                cell.ParticleSlot = -1;
+            }
+            cell.State = CellState.Wet;
         }
     }
 
@@ -321,7 +339,7 @@ public partial class FireManager : Node{
             bool hasFire = false;
             for (int y = 0; y < _interiorSize; y++) {
                 for (int x = 0; x < _interiorSize; x++) {
-                    Cell cell = CalculateCell(_padded, x, y, delta);
+                    Cell cell = CalculateCell(_padded, chunk.ChunkPosition, x, y, delta);
                     chunk.Next[y * _interiorSize + x] = cell;
                     if (cell.State == CellState.Burning) hasFire = true;
                 }
@@ -339,17 +357,26 @@ public partial class FireManager : Node{
 
 
 
-    private Cell CalculateCell(Cell[] chunk, int x, int y, double delta){
+    private Cell CalculateCell(Cell[] chunk, Vector2I chunkPos, int x, int y, double delta){
         Cell cell = chunk[PaddedIdx(x, y)];
 
         switch (cell.State) {
             case CellState.Unburnt:
-                return TryIgnite(chunk, x, y, cell, delta);
+                return TryIgnite(chunk, chunkPos, x, y, cell, delta);
             case CellState.Burning:
                 cell.BurnTimer += (float)delta;
 
+                float t = Mathf.Clamp(cell.BurnTimer / _burnTime, 0f, 1f);
+                float intensity = Mathf.Sin(t * Mathf.Pi);
+                if (cell.ParticleSlot >= 0)
+                    FireParticlePool.Instance?.UpdateCell(cell.ParticleSlot, CellToWorldPos(chunkPos, x, y), intensity, delta);
+
                 if (cell.BurnTimer >= _burnTime) {
                     cell.State = CellState.Burnt;
+                    if (cell.ParticleSlot >= 0) {
+                        FireParticlePool.Instance?.Release(cell.ParticleSlot);
+                        cell.ParticleSlot = -1;
+                    }
                 }
                 return cell;
             case CellState.Burnt:
@@ -358,26 +385,36 @@ public partial class FireManager : Node{
         }
 
     }
-    
-    
-    private Cell TryIgnite(Cell[] chunk, int x, int y, Cell cell, double delta){
+
+
+    private Cell TryIgnite(Cell[] chunk, Vector2I chunkPos, int x, int y, Cell cell, double delta){
         if (cell.State == CellState.Burnt) return cell;
-        
+
         var offsets = y % 2 == 0 ? _evenNeighbors : _oddNeighbors;
 
         for (int k = 0; k < 6; k++) {
-            
+
             Cell neighbor = chunk[PaddedIdx(x + offsets[k].X, y + offsets[k].Y)];
             if (neighbor.State != CellState.Burning || neighbor.BurnTimer < _minBurnDurationToSpread) continue;
 
             if (GD.Randf() < ComputeSpreadChance(cell, delta)) {
                 cell.State = CellState.Burning;
+                cell.ParticleSlot = SpawnParticlesAt(CellToWorldPos(chunkPos, x, y));
                 return cell;
-            
+
             }
         }
 
         return cell;
+    }
+
+    private Vector3 CellToWorldPos(Vector2I chunkPos, int x, int y){
+        float chunkWidth = _interiorSize * _cellSize;
+        Vector3 chunkOffset = new Vector3(chunkPos.X * chunkWidth, 0, chunkPos.Y * chunkWidth * _hexRowOffset);
+        Vector3 localPos = new Vector3(
+            y % 2 == 0 ? x * _cellSize : x * _cellSize + _cellSize / 2f, 0,
+            y * _cellSize * _hexRowOffset);
+        return localPos + chunkOffset - _globalOffset;
     }
     
     private bool NeighboursHaveFire(FireChunk chunk){

@@ -17,6 +17,8 @@ public partial class DebugUI : CanvasLayer{
 	}
 
 	public override void _Process(double delta){
+		AddLine($"FPS: {Engine.GetFramesPerSecond()}");
+
 		string output = "";
 		foreach (var text in _texts) {
 			output += text + '\n';

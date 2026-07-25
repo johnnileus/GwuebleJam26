@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="ParticleLayerConfig" format=3 uid="uid://dcsarc3wsk0"]
+
+[ext_resource type="Script" uid="uid://csq21qdb6r1xq" path="res://entities/multimesh_particles/ParticleLayerConfig.cs" id="1_smoke"]
+[ext_resource type="ArrayMesh" uid="uid://bcj2vcjchkuiu" path="res://entities/multimesh_particles/Icosphere.obj" id="2_smoke"]
+[ext_resource type="Shader" uid="uid://dsmdvp8x7audd" path="res://entities/multimesh_particles/instance_color.gdshader" id="3_smoke"]
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_smoke"]
+gradient = SubResource("Gradient_smoke")
+
+[sub_resource type="Curve" id="Curve_smoke_opacity"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.36416185, 0.9297125), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke_opacity"]
+curve = SubResource("Curve_smoke_opacity")
+
+[sub_resource type="Curve" id="Curve_smoke_scale"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.7687861, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_smoke_scale"]
+curve = SubResource("Curve_smoke_scale")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_smoke"]
+render_priority = 0
+shader = ExtResource("3_smoke")
+shader_parameter/color_ramp = SubResource("GradientTexture1D_smoke")
+shader_parameter/scale_curve = SubResource("CurveTexture_smoke_scale")
+shader_parameter/opacity_curve = SubResource("CurveTexture_smoke_opacity")
+shader_parameter/constant_force = Vector3(0, 0.4, 0)
+shader_parameter/lifetime = 15.0
+
+[resource]
+script = ExtResource("1_smoke")
+Mesh = ExtResource("2_smoke")
+MeshScale = 0.1
+MultiMeshMaterial = SubResource("ShaderMaterial_smoke")
+ConstantForce = Vector3(0, 0.4, 0)
+Lifetime = 15.0
+Size = Vector2(1, 1)
+ParticlesPerCell = 16

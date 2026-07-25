@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="ParticleLayerConfig" format=3 uid="uid://bwmivlo8ysv2u"]
+
+[ext_resource type="Script" uid="uid://csq21qdb6r1xq" path="res://entities/multimesh_particles/ParticleLayerConfig.cs" id="1_fire"]
+[ext_resource type="ArrayMesh" uid="uid://bcj2vcjchkuiu" path="res://entities/multimesh_particles/Icosphere.obj" id="2_fire"]
+[ext_resource type="Shader" uid="uid://dsmdvp8x7audd" path="res://entities/multimesh_particles/instance_color.gdshader" id="3_fire"]
+
+[sub_resource type="Gradient" id="Gradient_fire"]
+offsets = PackedFloat32Array(0, 0.15068494, 0.33904108, 0.51369864)
+colors = PackedColorArray(0.9999997, 0.96557957, 0.7308065, 1, 0.99809194, 0.9235437, 0.291097, 1, 0.7999711, 0.35990894, 9.62615e-07, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fire"]
+gradient = SubResource("Gradient_fire")
+
+[sub_resource type="Curve" id="Curve_fire_opacity"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_fire_opacity"]
+curve = SubResource("Curve_fire_opacity")
+
+[sub_resource type="Curve" id="Curve_fire_scale"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_fire_scale"]
+curve = SubResource("Curve_fire_scale")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fire"]
+render_priority = 0
+shader = ExtResource("3_fire")
+shader_parameter/color_ramp = SubResource("GradientTexture1D_fire")
+shader_parameter/scale_curve = SubResource("CurveTexture_fire_scale")
+shader_parameter/opacity_curve = SubResource("CurveTexture_fire_opacity")
+shader_parameter/constant_force = Vector3(0, 0.4, 0)
+shader_parameter/lifetime = 10.0
+
+[resource]
+script = ExtResource("1_fire")
+Mesh = ExtResource("2_fire")
+MeshScale = 0.1
+MultiMeshMaterial = SubResource("ShaderMaterial_fire")
+ConstantForce = Vector3(0, 0.4, 0)
+Lifetime = 10.0
+Size = Vector2(1, 1)
