@@ -4,10 +4,17 @@
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="2_0wfyh"]
 [ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="2_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="2_sugp2"]
+[ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="5_o6xl0"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="5_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="6_tipki"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_7wxnq"]
-size = Vector3(100, 0.1, 100)
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_tefeu"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_7wxnq"]
+size = Vector2(1000, 1000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o6xl0"]
+albedo_color = Color(0.8156863, 0.7921569, 0.44313726, 1)
 
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
@@ -19,23 +26,35 @@ _cellSize = 1.0
 _interiorSize = 16
 _mapImage = ExtResource("2_jyhfs")
 _baseSpreadChance = 0.5
-_minBurnDurationToSpread = 1.0
+_minBurnDurationToSpread = 2.5
+_burnTime = 25.0
 _moistureScale = 0.7
 _moistureOffset = 0.4
 _testBall = ExtResource("2_sugp2")
-_minimapNode = NodePath("../../Minimap/TextureRect")
+_minimapNode = NodePath("../../Minimap/map")
 
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("2_0wfyh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
+_waterSplash = ExtResource("5_o6xl0")
+_splashSpread = 15.0
+_splashSpeed = 12.0
+_splashUpSpeed = 10.0
+_waterGatherRate = 40.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=68127446]
-shape = SubResource("BoxShape3D_7wxnq")
+shape = SubResource("WorldBoundaryShape3D_tefeu")
 
-[node name="Minimap" type="CanvasLayer" parent="." unique_id=1813169959]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=1654777315]
+mesh = SubResource("PlaneMesh_7wxnq")
+surface_material_override/0 = SubResource("StandardMaterial3D_o6xl0")
 
-[node name="TextureRect" type="TextureRect" parent="Minimap" unique_id=507343106]
+[node name="DebugUI" parent="." unique_id=1407234005 instance=ExtResource("6_tipki")]
+
+[node name="Minimap" type="CanvasLayer" parent="." unique_id=927453504]
+
+[node name="map" type="TextureRect" parent="Minimap" unique_id=1288998969]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -47,3 +66,6 @@ grow_horizontal = 0
 grow_vertical = 0
 texture = ExtResource("5_tbgi4")
 expand_mode = 1
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]
+transform = Transform3D(0.8367695, 0.0714435, 0.5428746, -0.442693, 0.6717494, 0.5939494, -0.32224172, -0.73732543, 0.5937268, 0, 0, 0)

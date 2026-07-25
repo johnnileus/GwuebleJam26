@@ -12,6 +12,7 @@ public enum CellState : byte{
     Unburnt,
     Burning,
     Burnt,
+    Wet,
     Water,
     Forest
 }
@@ -142,10 +143,6 @@ public partial class FireManager : Node{
     public override void _Process(double delta){
 
 
-        if (Input.IsActionJustPressed("player_click")) {
-            IgniteAt(GetClickOnPlane(GetViewport().GetMousePosition()));
-
-        }
         
         
         var t1 = Time.GetTicksUsec();
@@ -157,6 +154,9 @@ public partial class FireManager : Node{
         
         if (_drawGrid)
             DrawGrid();
+        
+        DebugUI.Instance.AddLine($"Time taken: {(t2-t1)/1000f}ms, tick: {_totalTicks}");
+        DebugUI.Instance.AddLine($"Active chunks: {_activeChunks.Count}");
     }
 
     private void SetupMinimap(){
@@ -186,7 +186,7 @@ public partial class FireManager : Node{
         _minimapTex.Update(_minimapImage);
     }
     
-    private Vector3 GetClickOnPlane(Vector2 mousePos){
+    public Vector3 GetClickOnPlane(Vector2 mousePos){
 
 
         var camera = GetViewport().GetCamera3D();
@@ -226,18 +226,49 @@ public partial class FireManager : Node{
 
         int idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
         chunk.Current[idx].State = CellState.Burning;
-        chunk.IsOnFire = true;   // so CalculateTick treats this chunk as active
+        chunk.IsOnFire = true; 
     }
 
-    public FireChunk GetClickedChunk(){
-        return null;
+    public void WetAt(Vector3 globalPos){
+
+        ref Cell cell = ref GetCellAt(globalPos);
+        
+        if (CanBecomeWet(cell.State)) {
+            cell.State = CellState.Wet;
+
+        }
     }
-    
+
+    private static bool CanBecomeWet(CellState state) =>
+        state != CellState.Water &&
+        state != CellState.Forest &&
+        state != CellState.Burnt;
+
+    public ref Cell GetCellAt(Vector3 globalPos){
+        var ball = _testBall.Instantiate<Node3D>();
+        ball.Position = globalPos;
+        AddChild(ball);
+        
+        Vector3 gridPos = globalPos + _globalOffset;
+
+        int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
+        int yLocal = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
+        float rowShift = yLocal % 2 == 0 ? 0f : _cellSize / 2f;
+        int gx = Mathf.RoundToInt((gridPos.X - rowShift) / _cellSize);
+
+        int cx = Mathf.FloorToInt(gx / (float)_interiorSize);
+        int cy = Mathf.FloorToInt(gy / (float)_interiorSize);
+
+        FireChunk chunk = GetChunk(cx, cy);
+        if (chunk == null) throw new InvalidOperationException("No chunk at this position");
+
+        int idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
+        return ref chunk.Current[idx];
+    }
     private FireChunk GetChunk(int cx, int cy){
         return cx < 0 || cx >= _gridW || cy < 0 || cy >= _gridH ? null : _chunks[cy * _gridW + cx];
     }
-
-
+    
     private int GetChunkIndex(int x, int y) {
         int wrappedX = ((x % _interiorSize) + _interiorSize) % _interiorSize;
         int wrappedY = ((y % _interiorSize) + _interiorSize) % _interiorSize;

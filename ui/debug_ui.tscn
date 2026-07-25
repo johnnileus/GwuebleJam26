@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cu4mfm3a1suic"]
+
+[ext_resource type="Script" uid="uid://2ogi4wuytfu8" path="res://ui/DebugUI.cs" id="1_uqk8x"]
+
+[node name="DebugUI" type="CanvasLayer" unique_id=1407234005 node_paths=PackedStringArray("_label")]
+script = ExtResource("1_uqk8x")
+_label = NodePath("VBoxContainer/Label")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=429932232]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=908515817]
+layout_mode = 2

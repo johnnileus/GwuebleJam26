@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://18acqjhx5tkn"]
+
+[ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="1_7p2yb"]
+
+[node name="Minimap" type="CanvasLayer" unique_id=857909801]
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=770798560]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -256.0
+offset_top = -256.0
+grow_horizontal = 0
+grow_vertical = 0
+texture = ExtResource("1_7p2yb")
+expand_mode = 1
