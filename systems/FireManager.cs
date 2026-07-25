@@ -110,7 +110,8 @@ public partial class FireManager : Node{
 
         _padded = new Cell[(_interiorSize + 2) * (_interiorSize + 2)];
 
-        
+        HexGridRenderer.Instance?.Initialize(_gridW * _gridH * _interiorSize * _interiorSize);
+
         foreach (var chunk in _chunks){
             for (int y = 0; y < _interiorSize; y++){
                 for (int x = 0; x < _interiorSize; x++){
@@ -132,6 +133,10 @@ public partial class FireManager : Node{
                     }
 
                     chunk.Current[y * _interiorSize + x] = cell;
+
+                    int globalIdx = GlobalCellIndex(chunk.ChunkPosition, y * _interiorSize + x);
+                    HexGridRenderer.Instance?.SetCellTransform(globalIdx, CellToWorldPos(chunk.ChunkPosition, x, y));
+                    HexGridRenderer.Instance?.SetCellColor(globalIdx, GetColour(cell));
                 }
             }
         }
@@ -238,6 +243,8 @@ public partial class FireManager : Node{
         cell.State = CellState.Burning;
         cell.ParticleSlot = SpawnParticlesAt(globalPos);
         chunk.IsOnFire = true;
+
+        HexGridRenderer.Instance?.SetCellColor(GlobalCellIndex(chunk.ChunkPosition, idx), GetColour(cell));
     }
 
     private int SpawnParticlesAt(Vector3 globalPos){
@@ -246,7 +253,7 @@ public partial class FireManager : Node{
 
     public void WetAt(Vector3 globalPos){
 
-        ref Cell cell = ref GetCellAt(globalPos);
+        ref Cell cell = ref GetCellAt(globalPos, out Vector2I chunkPos, out int idx);
 
         if (CanBecomeWet(cell.State)) {
             if (cell.State == CellState.Burning && cell.ParticleSlot >= 0) {
@@ -254,6 +261,7 @@ public partial class FireManager : Node{
                 cell.ParticleSlot = -1;
             }
             cell.State = CellState.Wet;
+            HexGridRenderer.Instance?.SetCellColor(GlobalCellIndex(chunkPos, idx), GetColour(cell));
         }
     }
 
@@ -266,7 +274,11 @@ public partial class FireManager : Node{
         var ball = _testBall.Instantiate<Node3D>();
         ball.Position = globalPos;
         AddChild(ball);
-        
+
+        return ref GetCellAt(globalPos, out _, out _);
+    }
+
+    private ref Cell GetCellAt(Vector3 globalPos, out Vector2I chunkPos, out int idx){
         Vector3 gridPos = globalPos + _globalOffset;
 
         int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
@@ -280,7 +292,8 @@ public partial class FireManager : Node{
         FireChunk chunk = GetChunk(cx, cy);
         if (chunk == null) throw new InvalidOperationException("No chunk at this position");
 
-        int idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
+        idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
+        chunkPos = chunk.ChunkPosition;
         return ref chunk.Current[idx];
     }
     private FireChunk GetChunk(int cx, int cy){
@@ -378,6 +391,7 @@ public partial class FireManager : Node{
                         cell.ParticleSlot = -1;
                     }
                 }
+                HexGridRenderer.Instance?.SetCellColor(GlobalCellIndex(chunkPos, y * _interiorSize + x), GetColour(cell));
                 return cell;
             case CellState.Burnt:
             default:
@@ -400,6 +414,7 @@ public partial class FireManager : Node{
             if (GD.Randf() < ComputeSpreadChance(cell, delta)) {
                 cell.State = CellState.Burning;
                 cell.ParticleSlot = SpawnParticlesAt(CellToWorldPos(chunkPos, x, y));
+                HexGridRenderer.Instance?.SetCellColor(GlobalCellIndex(chunkPos, y * _interiorSize + x), GetColour(cell));
                 return cell;
 
             }
@@ -407,6 +422,9 @@ public partial class FireManager : Node{
 
         return cell;
     }
+
+    private int GlobalCellIndex(Vector2I chunkPos, int localIdx) =>
+        (chunkPos.Y * _gridW + chunkPos.X) * (_interiorSize * _interiorSize) + localIdx;
 
     private Vector3 CellToWorldPos(Vector2I chunkPos, int x, int y){
         float chunkWidth = _interiorSize * _cellSize;

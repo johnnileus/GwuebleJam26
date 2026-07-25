@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://780ldu3few43" path="res://systems/FireParticlePool.cs" id="7_fpp"]
 [ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="8_firecfg"]
 [ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="9_smokecfg"]
+[ext_resource type="Script" uid="uid://co4h0k5yg5ka2" path="res://entities/hex_grid/HexGridRenderer.cs" id="10_hexgrid"]
+[ext_resource type="CylinderMesh" path="res://entities/hex_grid/HexTile.tres" id="11_hextile"]
+[ext_resource type="Material" path="res://entities/hex_grid/HexTileMaterial.tres" id="12_hexmat"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_tefeu"]
 
@@ -27,6 +30,12 @@ script = ExtResource("7_fpp")
 _maxConcurrentCells = 2048
 _fireLayerConfig = ExtResource("8_firecfg")
 _smokeLayerConfig = ExtResource("9_smokecfg")
+
+[node name="HexGridRenderer" type="Node" parent="managers" unique_id=-914738206]
+script = ExtResource("10_hexgrid")
+_hexMesh = ExtResource("11_hextile")
+_material = ExtResource("12_hexmat")
+_yRotationDegrees = 0.0
 
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_minimapNode")]
 script = ExtResource("1_o5qli")
