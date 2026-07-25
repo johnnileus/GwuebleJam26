@@ -11,7 +11,9 @@ using Color = Godot.Color;
 public enum CellState : byte{
     Unburnt,
     Burning,
-    Burnt
+    Burnt,
+    Water,
+    Forest
 }
 
 public struct Cell{
@@ -37,10 +39,14 @@ public class FireChunk{
 
 public partial class FireManager : Node{
 
+    public static FireManager Instance { get; private set; }
+    
     [Export] private bool _drawGrid = true;
     
     [Export] private float _cellSize;
-    [Export] private int _interiorSize, _gridW, _gridH;
+    [Export] private int _interiorSize;
+    private int _gridW, _gridH;
+    [Export] private Texture2D _mapImage;
 
     [Export] private float _baseSpreadChance = .3f;
     [Export] private float _minBurnDurationToSpread = 2f;
@@ -54,15 +60,20 @@ public partial class FireManager : Node{
 
     private FastNoiseLite _noise = new();
     [Export] private float _moistureScale = 1.5f;
+    [Export] private float _moistureOffset = .8f;
 
     private int _totalTicks = 0;
     
-    private Vector3 globalOffset;
+    private Vector3 _globalOffset;
 
-    [Export] private PackedScene testBall;
+    [Export] private PackedScene _testBall;
+
+    //minimap
+    [Export] private TextureRect _minimapNode;
+    private ImageTexture _minimapTex;
+    private Image _minimapImage;
 
 
-    
     private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
             new(-1, -1),  new(0, -1),
         new(-1, 0),           new(+1, 0),
@@ -75,10 +86,19 @@ public partial class FireManager : Node{
     };
 
     public override void _Ready(){
+
+        Instance = this;
+        
+        Texture2D texture = GD.Load<Texture2D>(_mapImage.GetPath());
+        Image image = texture.GetImage();
+        _gridW = image.GetWidth() / _interiorSize;
+        _gridH = image.GetHeight() / _interiorSize;
+        
+        GD.Print(image.GetPixel(0,0));
         
         _chunks = new FireChunk[_gridW * _gridH];
         
-        globalOffset = new Vector3(_cellSize * _interiorSize * _gridW / 2f, 0, _cellSize * _interiorSize * _gridH / 2f);
+        _globalOffset = new Vector3(_cellSize * _interiorSize * _gridW / 2f, 0, _cellSize * _interiorSize * _gridH / 2f);
         _activeChunks = new List<FireChunk>();
 
         for (int i = 0; i < _chunks.Length; i++) {
@@ -94,16 +114,26 @@ public partial class FireManager : Node{
                 for (int x = 0; x < _interiorSize; x++){
                     int gx = chunk.ChunkPosition.X * _interiorSize + x;
                     int gy = chunk.ChunkPosition.Y * _interiorSize + y;
-                    float moisture = (_noise.GetNoise2D(gx*2f, gy*2f) + 1f) * 0.5f;
 
-                    chunk.Current[y * _interiorSize + x] = new Cell {
-                        State = CellState.Unburnt,
-                        Moisture = moisture * _moistureScale,
-                    };
+                    Cell cell = new Cell();
+                    
+                    Color c = image.GetPixel(gx, gy);
+                    if (c.B > .1f) {
+                        cell.State = CellState.Water;
+                    } else if (c.G > .1f) {
+                        cell.State = CellState.Forest;
+                    } else {
+                        cell.State = CellState.Unburnt;
+                        float moisture = (_noise.GetNoise2D(gx*2f, gy*2f) + _moistureOffset) * 0.5f;
+                        cell.Moisture = moisture * _moistureScale;
+                    }
+
+                    chunk.Current[y * _interiorSize + x] = cell;
                 }
             }
         }
 
+        SetupMinimap();
 
         _chunks[0].IsOnFire = true;
 
@@ -123,10 +153,39 @@ public partial class FireManager : Node{
         var t2 = Time.GetTicksUsec();
         // GD.Print($"took {(t2-t1)/1000f}ms, tick: {_totalTicks}");
 
+        UpdateMinimap();
+        
         if (_drawGrid)
             DrawGrid();
     }
 
+    private void SetupMinimap(){
+        _minimapImage = Image.CreateEmpty(
+            _gridW * _interiorSize,
+            _gridH * _interiorSize,
+            false,
+            Image.Format.Rgba8);
+        _minimapTex = ImageTexture.CreateFromImage(_minimapImage);
+        
+        _minimapNode.Texture = _minimapTex;
+
+    }
+
+    private void UpdateMinimap(){
+        
+        foreach (var chunk in _chunks) {
+            for (int y = 0; y < _interiorSize; y++) {
+                for (int x = 0; x < _interiorSize; x++) {
+                    _minimapImage.SetPixel(
+                        chunk.ChunkPosition.X * _interiorSize + x, 
+                        chunk.ChunkPosition.Y * _interiorSize + y,
+                        GetColour(chunk.Current[GetChunkIndex(x, y)]));
+                }
+            }
+        }
+        _minimapTex.Update(_minimapImage);
+    }
+    
     private Vector3 GetClickOnPlane(Vector2 mousePos){
 
 
@@ -148,11 +207,11 @@ public partial class FireManager : Node{
     
     public void IgniteAt(Vector3 globalPos){
         
-        var ball = testBall.Instantiate<Node3D>();
+        var ball = _testBall.Instantiate<Node3D>();
         ball.Position = globalPos;
         AddChild(ball);
         
-        Vector3 gridPos = globalPos + globalOffset;
+        Vector3 gridPos = globalPos + _globalOffset;
 
         int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
         int yLocal = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
@@ -322,18 +381,27 @@ public partial class FireManager : Node{
                     Vector3 size = new Vector3(_cellSize, 0.01f,_cellSize);
                     Color colour = GetColour(cell);
 
-                    DrawCell(position + chunkOffset - globalOffset, size * .9f, colour);
+                    DrawCell(position + chunkOffset - _globalOffset, size * .9f, colour);
                 }
             }
         }
+    }
+
+    private Color GetColour(Cell cell){
+        if (cell.State == CellState.Unburnt) {
+            return new Color(0.15f, 0.6f - cell.Moisture, 0.1f);
+        } else if (cell.State == CellState.Burning) {
+            return Colors.Yellow.Lerp(Colors.Red, Mathf.Clamp(cell.BurnTimer / _burnTime, 0f, 1f)); 
+        } else if (cell.State == CellState.Burnt) {
+            return new Color(0.12f, 0.1f, 0.1f);
+        } else if (cell.State == CellState.Water) {
+            return Colors.Blue;
+        } else if (cell.State == CellState.Forest) {
+            return Colors.DarkGreen;
+        } 
+        else return Colors.Magenta;
         
     }
-    private Color GetColour(Cell cell) => cell.State switch
-    {
-        CellState.Unburnt  => new Color(0.15f, 0.6f - cell.Moisture, 0.1f),
-        CellState.Burning  => Colors.OrangeRed.Lerp(Colors.Yellow, _burnTime / cell.BurnTimer ),
-        CellState.Burnt => new Color(0.12f, 0.1f, 0.1f), _ => Colors.Magenta
-    };
 
     private void DrawCell(Vector3 pos, Vector3 size, Color col){
         DebugDraw3D.DrawBox(pos, Quaternion.Identity, size, col, is_box_centered: true);
