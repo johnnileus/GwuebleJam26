@@ -30,3 +30,4 @@ mesh = SubResource("BoxMesh_g4v3v")
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.8660254, 0, -0.8660254, 0.49999997, 0, 14, 7)
 projection = 1
 size = 24.0
+far = 55.39
