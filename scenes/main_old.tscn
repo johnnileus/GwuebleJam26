@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://cqj578acxvsv2"]
 
-[ext_resource type="Script" uid="uid://780ldu3few43" path="res://systems/FireParticlePool.cs" id="1_vr6wg"]
-[ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="2_cd8vi"]
-[ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="3_0lt4g"]
-[ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="4_l7sk3"]
-[ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="5_ql3jb"]
-[ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="6_oxlka"]
-[ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="7_n4dl4"]
-[ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="8_x8pk1"]
-[ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="9_q5eb5"]
+[ext_resource type="Script" uid="uid://780ldu3few43" path="res://systems/FireParticlePool.cs" id="1_vt6j0"]
+[ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="2_sffo0"]
+[ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="3_x3bvg"]
+[ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="4_t6uxt"]
+[ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="5_8emnm"]
+[ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="6_uq4kf"]
+[ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="7_8a8kf"]
+[ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="8_x6k42"]
+[ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="9_4oeg8"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_tefeu"]
 
@@ -16,32 +16,32 @@
 size = Vector2(1000, 1000)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o6xl0"]
-albedo_color = Color(0.8156863, 0.7921569, 0.44313726, 1)
+albedo_color = Color(0, 0, 0, 1)
 
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
 [node name="managers" type="Node3D" parent="." unique_id=1096366848]
 
 [node name="FireParticlePool" type="Node" parent="managers" unique_id=-473062531]
-script = ExtResource("1_vr6wg")
+script = ExtResource("1_vt6j0")
 _maxConcurrentCells = 2048
-_fireLayerConfig = ExtResource("2_cd8vi")
-_smokeLayerConfig = ExtResource("3_0lt4g")
+_fireLayerConfig = ExtResource("2_sffo0")
+_smokeLayerConfig = ExtResource("3_x3bvg")
 
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_minimapNode")]
-script = ExtResource("4_l7sk3")
+script = ExtResource("4_t6uxt")
 _cellSize = 1.0
 _interiorSize = 16
-_mapImage = ExtResource("5_ql3jb")
+_mapImage = ExtResource("5_8emnm")
 _baseSpreadChance = 0.5
 _minBurnDurationToSpread = 2.5
-_burnTime = 25.0
+_burnTime = 14.0
 _moistureScale = 0.7
 _moistureOffset = 0.4
-_testBall = ExtResource("6_oxlka")
+_testBall = ExtResource("6_uq4kf")
 _minimapNode = NodePath("../../Minimap/map")
 
-[node name="Player" parent="." unique_id=863245587 instance=ExtResource("7_n4dl4")]
+[node name="Player" parent="." unique_id=863245587 instance=ExtResource("7_8a8kf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
@@ -53,7 +53,7 @@ shape = SubResource("WorldBoundaryShape3D_tefeu")
 mesh = SubResource("PlaneMesh_7wxnq")
 surface_material_override/0 = SubResource("StandardMaterial3D_o6xl0")
 
-[node name="DebugUI" parent="." unique_id=1407234005 instance=ExtResource("8_x8pk1")]
+[node name="DebugUI" parent="." unique_id=1407234005 instance=ExtResource("8_x6k42")]
 
 [node name="Minimap" type="CanvasLayer" parent="." unique_id=927453504]
 
@@ -67,7 +67,7 @@ offset_left = -256.0
 offset_top = -256.0
 grow_horizontal = 0
 grow_vertical = 0
-texture = ExtResource("9_q5eb5")
+texture = ExtResource("9_4oeg8")
 expand_mode = 1
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]

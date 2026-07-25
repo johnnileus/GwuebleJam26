@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="8_2gy6y"]
 [ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="9_qxpq8"]
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="10_ttjjy"]
+[ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="11_cfynr"]
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="11_vlfqm"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
 
@@ -63,6 +64,11 @@ _minimapNode = NodePath("../../Minimap/map")
 
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("10_ttjjy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
+_waterSplash = ExtResource("11_cfynr")
+_splashSpread = 20.0
+_splashSpeed = 20.0
+_splashUpSpeed = 12.0
+_waterGatherRate = 500.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
