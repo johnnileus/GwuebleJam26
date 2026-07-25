@@ -21,6 +21,16 @@ size = Vector2(1000, 1000)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o6xl0"]
 albedo_color = Color(0.8156863, 0.7921569, 0.44313726, 1)
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_id6pk"]
+
+[sub_resource type="Sky" id="Sky_8jxak"]
+sky_material = SubResource("ProceduralSkyMaterial_id6pk")
+
+[sub_resource type="Environment" id="Environment_omjkn"]
+background_mode = 2
+sky = SubResource("Sky_8jxak")
+ssao_intensity = 4.97
+
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
 [node name="managers" type="Node3D" parent="." unique_id=1096366848]
@@ -39,6 +49,7 @@ _yRotationDegrees = 0.0
 
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_minimapNode")]
 script = ExtResource("7_7hbt6")
+_drawGrid = false
 _cellSize = 1.0
 _interiorSize = 16
 _mapImage = ExtResource("8_2gy6y")
@@ -59,6 +70,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07
 shape = SubResource("WorldBoundaryShape3D_tefeu")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=1654777315]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.23614717, 0)
+visible = false
 mesh = SubResource("PlaneMesh_7wxnq")
 surface_material_override/0 = SubResource("StandardMaterial3D_o6xl0")
 
@@ -81,3 +94,7 @@ expand_mode = 1
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]
 transform = Transform3D(0.8367695, 0.0714435, 0.5428746, -0.442693, 0.6717494, 0.5939494, -0.32224172, -0.73732543, 0.5937268, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=949337840]
+environment = SubResource("Environment_omjkn")

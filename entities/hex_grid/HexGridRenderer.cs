@@ -29,7 +29,7 @@ public partial class HexGridRenderer : Node
 
     public void SetCellTransform(int index, Vector3 worldPos){
         var basis = Basis.Identity.Rotated(Vector3.Up, Mathf.DegToRad(_yRotationDegrees));
-        RenderingServer.MultimeshInstanceSetTransform(_multiMeshRid, index, new Transform3D(basis, worldPos));
+        RenderingServer.MultimeshInstanceSetTransform(_multiMeshRid, index, new Transform3D(basis, worldPos).Translated(Vector3.Up * (float)GD.RandRange(-0.1f, 0.1f)));
     }
 
     public void SetCellColor(int index, Color color){
