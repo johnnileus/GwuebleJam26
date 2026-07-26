@@ -21,7 +21,7 @@
 [ext_resource type="AudioStream" uid="uid://xdtc55nj64tp" path="res://raw_assets/wind.mp3" id="17_llaad"]
 [ext_resource type="Script" uid="uid://bq81x5l6m6oca" path="res://entities/grass/GrassManager.cs" id="18_grass"]
 [ext_resource type="ArrayMesh" uid="uid://dy1duhd0hp5nk" path="res://raw_assets/Grass.obj" id="19_grassmesh"]
-[ext_resource type="Material" path="res://entities/grass/GrassMaterial.tres" id="20_grassmat"]
+[ext_resource type="Material" uid="uid://bu4smt5yuir11" path="res://entities/grass/GrassMaterial.tres" id="20_grassmat"]
 [ext_resource type="PackedScene" uid="uid://ck6e8uwxal5sa" path="res://scenes/pause_menu/pause_menu.tscn" id="23_556lp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
