@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="11_vlfqm"]
 [ext_resource type="PackedScene" uid="uid://b5m76ru6k4il4" path="res://entities/chair/chair.tscn" id="11_yc235"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
-[ext_resource type="AudioStream" uid="uid://ohjmcmvk4ctm" path="res://raw_assets/fire.mp3" id="14_7hbt6"]
 [ext_resource type="Script" uid="uid://dg77fub7tq27y" path="res://scenes/GameOverUi.cs" id="15_kq6sy"]
 [ext_resource type="AudioStream" uid="uid://xdtc55nj64tp" path="res://raw_assets/wind.mp3" id="17_llaad"]
 
@@ -127,9 +126,6 @@ _splashSpread = 20.0
 _splashSpeed = 20.0
 _splashUpSpeed = 12.0
 _waterGatherRate = 500.0
-_fireStream = ExtResource("14_7hbt6")
-_fireMinDb = -30.0
-_fireMaxDb = -20.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
