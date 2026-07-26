@@ -1,6 +1,15 @@
 [gd_scene format=3 uid="uid://bhmfm578jwljb"]
 
 [ext_resource type="Script" uid="uid://dx46mawvlqgys" path="res://scenes/main_menu/MainMenu.cs" id="1_fsom3"]
+[ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="2_uqeha"]
+[ext_resource type="Texture2D" uid="uid://cskok0jgukpsi" path="res://raw_assets/map_main_menu.png" id="3_uqeha"]
+[ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="4_3ovsr"]
+[ext_resource type="Script" uid="uid://co4h0k5yg5ka2" path="res://entities/hex_grid/HexGridRenderer.cs" id="5_5seab"]
+[ext_resource type="CylinderMesh" uid="uid://cd3yvjdf8hw1s" path="res://entities/hex_grid/HexTile.tres" id="6_4xg86"]
+[ext_resource type="Material" path="res://entities/hex_grid/HexTileMaterial.tres" id="7_thkx5"]
+[ext_resource type="Script" uid="uid://780ldu3few43" path="res://systems/FireParticlePool.cs" id="8_x2yjq"]
+[ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="9_lqpn7"]
+[ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="10_qel0l"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
 font_size = 64
@@ -35,3 +44,38 @@ text = "Play"
 [node name="Quit" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=914843930]
 layout_mode = 2
 text = "Quit"
+
+[node name="HexGridRenderer" type="Node" parent="." unique_id=1418139374]
+script = ExtResource("5_5seab")
+_hexMesh = ExtResource("6_4xg86")
+_material = ExtResource("7_thkx5")
+_yRotationDegrees = 0.0
+
+[node name="FireParticlePool" type="Node" parent="." unique_id=548072002]
+script = ExtResource("8_x2yjq")
+_maxConcurrentCells = 2048
+_fireLayerConfig = ExtResource("9_lqpn7")
+_smokeLayerConfig = ExtResource("10_qel0l")
+
+[node name="FireManager" type="Node3D" parent="." unique_id=888858674]
+script = ExtResource("2_uqeha")
+_isMainMenu = true
+_drawGrid = false
+_cellSize = 1.0
+_interiorSize = 16
+_mapImage = ExtResource("3_uqeha")
+_baseSpreadChance = 0.5
+_minBurnDurationToSpread = 2.5
+_burnTime = 25.0
+_moistureScale = 0.7
+_moistureOffset = 0.4
+_testBall = ExtResource("4_3ovsr")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1699450604]
+transform = Transform3D(1, 0, 0, 0, 0.60029995, 0.799775, 0, -0.799775, 0.60029995, 0, 7.0450096, 7.1859894)
+projection = 1
+size = 10.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1119330726]
+transform = Transform3D(0.8367695, 0.0714435, 0.5428746, -0.442693, 0.6717494, 0.5939494, -0.32224172, -0.73732543, 0.5937268, 0, 0, 0)
+shadow_enabled = true
