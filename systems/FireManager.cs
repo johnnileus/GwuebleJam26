@@ -30,6 +30,7 @@ public class FireChunk{
      public Cell[] Next;
      public Vector2I ChunkPosition;
      public bool IsOnFire = false;
+     public int cellsOnFire;
 
 
      public FireChunk(int size, Vector2I chunkPos){
@@ -80,6 +81,8 @@ public partial class FireManager : Node{
     private Image _minimapImage;
 
 
+
+
     private static readonly Vector2I[] _evenNeighbors = { // clockwise starting NW
             new(-1, -1),  new(0, -1),
         new(-1, 0),           new(+1, 0),
@@ -99,8 +102,8 @@ public partial class FireManager : Node{
         Image image = texture.GetImage();
         _gridW = image.GetWidth() / _interiorSize;
         _gridH = image.GetHeight() / _interiorSize;
-        
-        GD.Print(image.GetPixel(0,0));
+
+
         
         _chunks = new FireChunk[_gridW * _gridH];
         
@@ -159,7 +162,7 @@ public partial class FireManager : Node{
         var t1 = Time.GetTicksUsec();
         CalculateTick(delta);
         var t2 = Time.GetTicksUsec();
-        // GD.Print($"took {(t2-t1)/1000f}ms, tick: {_totalTicks}");
+        
 
         FireParticlePool.Instance?.AdvanceDyingSlots(delta);
 
@@ -301,6 +304,7 @@ public partial class FireManager : Node{
         return cx < 0 || cx >= _gridW || cy < 0 || cy >= _gridH ? null : _chunks[cy * _gridW + cx];
     }
     
+    
     private int GetChunkIndex(int x, int y) {
         int wrappedX = ((x % _interiorSize) + _interiorSize) % _interiorSize;
         int wrappedY = ((y % _interiorSize) + _interiorSize) % _interiorSize;
@@ -349,6 +353,7 @@ public partial class FireManager : Node{
         
         foreach (var chunk in _activeChunks) {
             FillPadded(chunk);
+            chunk.cellsOnFire = 0;
             bool hasFire = false;
             for (int y = 0; y < _interiorSize; y++) {
                 for (int x = 0; x < _interiorSize; x++) {
@@ -357,6 +362,7 @@ public partial class FireManager : Node{
                     if (cell.State == CellState.Burning) {
                         hasFire = true;
                         _fireHasStarted = true;
+                        chunk.cellsOnFire++;
                     }
 
                     if (cell.State == CellState.Forest && BurningNeighbour(_padded, x, y)) {
@@ -478,6 +484,8 @@ public partial class FireManager : Node{
         return false;
     }
     
+
+    
     private float ComputeSpreadChance(Cell target, double delta){
         float chance = _baseSpreadChance * (float) delta;
         chance *= 1f - Mathf.Clamp(target.Moisture, 0f, 1f);
@@ -513,7 +521,7 @@ public partial class FireManager : Node{
         } else if (cell.State == CellState.Water) {
             return Colors.Blue;
         } else if (cell.State == CellState.Forest) {
-            return Colors.DarkGreen;
+            return new Color(0, .3f, 0);
         } 
         else return Colors.Magenta;
         

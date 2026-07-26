@@ -25,10 +25,30 @@ public partial class Player : CharacterBody3D
     [Export] private Label3D _waterLabel;
     private bool _facingWater = false;
     
+        
+    //fire sfx
+    private AudioStreamPlayer3D[] _firePlayers;
+    [Export] private AudioStream _fireStream;
 
     public override void _Ready(){
         _fireMgr = FireManager.Instance;
         _waterLabel.Visible = false;
+        
+        
+        _firePlayers = new AudioStreamPlayer3D[9];
+        float spacing = 10f;
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                var p = new AudioStreamPlayer3D {
+                    Stream = _fireStream,
+                    VolumeDb = -80f
+                };
+                AddChild(p);
+                p.Play();
+                _firePlayers[y * 3 + x] = p;
+            }
+        }
+        
     }
 
     public override void _PhysicsProcess(double delta)
@@ -72,7 +92,6 @@ public partial class Player : CharacterBody3D
                 Vector3 fwd = Model.GlobalTransform.Basis.Z;
                 Cell cell = _fireMgr.GetCellAt(Position + fwd);
                 if (FireManager.CanBecomeWet(cell.State)) {
-                    GD.Print(_waterGathered);
                     _fireMgr.WetAt(Position + fwd);
                     ModifyWater(-_waterPerUse);
                 }

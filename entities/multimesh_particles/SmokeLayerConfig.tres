@@ -1,8 +1,13 @@
 [gd_resource type="Resource" script_class="ParticleLayerConfig" format=3 uid="uid://dcsarc3wsk0"]
 
 [ext_resource type="Script" uid="uid://csq21qdb6r1xq" path="res://entities/multimesh_particles/ParticleLayerConfig.cs" id="1_smoke"]
-[ext_resource type="ArrayMesh" uid="uid://bcj2vcjchkuiu" path="res://entities/multimesh_particles/Icosphere.obj" id="2_smoke"]
 [ext_resource type="Shader" uid="uid://dsmdvp8x7audd" path="res://entities/multimesh_particles/instance_color.gdshader" id="3_smoke"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_fsom3"]
+radius = 1.0
+height = 2.0
+radial_segments = 4
+rings = 1
 
 [sub_resource type="Gradient" id="Gradient_smoke"]
 
@@ -34,10 +39,11 @@ shader_parameter/lifetime = 15.0
 
 [resource]
 script = ExtResource("1_smoke")
-Mesh = ExtResource("2_smoke")
+Mesh = SubResource("SphereMesh_fsom3")
 MeshScale = 0.1
 MultiMeshMaterial = SubResource("ShaderMaterial_smoke")
-ConstantForce = Vector3(0, 0.4, 0)
-Lifetime = 15.0
+ConstantForce = Vector3(0.15, 1.4, 0.1)
+Lifetime = 6.0
+SpawnRate = 4.0
 Size = Vector2(1, 1)
-ParticlesPerCell = 16
+ParticlesPerCell = 40

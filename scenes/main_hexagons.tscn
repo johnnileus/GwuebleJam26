@@ -13,8 +13,10 @@
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="10_ttjjy"]
 [ext_resource type="Script" uid="uid://dp07nvm8pf73b" path="res://scenes/CutsceneDialogue.cs" id="11_kq6sy"]
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="11_vlfqm"]
+[ext_resource type="PackedScene" uid="uid://b5m76ru6k4il4" path="res://entities/chair/chair.tscn" id="11_yc235"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
 [ext_resource type="Script" uid="uid://dg77fub7tq27y" path="res://scenes/GameOverUi.cs" id="15_kq6sy"]
+[ext_resource type="AudioStream" uid="uid://xdtc55nj64tp" path="res://raw_assets/wind.mp3" id="17_llaad"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
 font_size = 64
@@ -64,7 +66,7 @@ _cellSize = 1.0
 _interiorSize = 16
 _mapImage = ExtResource("8_2gy6y")
 _baseSpreadChance = 0.5
-_minBurnDurationToSpread = 10.0
+_minBurnDurationToSpread = 2.5
 _burnTime = 25.0
 _moistureScale = 0.7
 _moistureOffset = 0.4
@@ -84,6 +86,24 @@ transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49
 
 [node name="ChairPile" type="Node3D" parent="managers/CutsceneManager" unique_id=1107189674]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.787342, 0, 0)
+
+[node name="chair" parent="managers/CutsceneManager/ChairPile" unique_id=1320957191 instance=ExtResource("11_yc235")]
+transform = Transform3D(0.5227711, 0, -0.8524731, 0, 1, 0, 0.8524731, 0, 0.5227711, -0.36881828, -0.04725212, 0)
+
+[node name="chair5" parent="managers/CutsceneManager/ChairPile" unique_id=1474558736 instance=ExtResource("11_yc235")]
+transform = Transform3D(-0.2594677, 0.08578604, -0.96193415, 0.35186052, 0.93598264, -0.011437611, 0.8993725, -0.34143436, -0.273042, -0.40308666, -0.09306598, 0.98927593)
+
+[node name="chair3" parent="managers/CutsceneManager/ChairPile" unique_id=1689186345 instance=ExtResource("11_yc235")]
+transform = Transform3D(0.056072056, 0, -0.99842674, 0.9978721, 0.033326726, 0.05604091, 0.033274293, -0.9994445, 0.001868698, 0.34057283, 0.37747526, 1.1160834)
+
+[node name="chair4" parent="managers/CutsceneManager/ChairPile" unique_id=1979685875 instance=ExtResource("11_yc235")]
+transform = Transform3D(-0.030182235, -0.5257652, 0.8500941, 0.9978721, 0.033326726, 0.05604091, -0.05779521, 0.8499766, 0.5236406, -0.740108, 0.49994218, -0.666922)
+
+[node name="chair6" parent="managers/CutsceneManager/ChairPile" unique_id=822173125 instance=ExtResource("11_yc235")]
+transform = Transform3D(0.025074156, -0.9895494, 0.14199704, 0.997872, 0.033326726, 0.056040898, -0.06018754, 0.14028972, 0.98827946, 1.8562565, 0.49994218, 0.79167056)
+
+[node name="chair2" parent="managers/CutsceneManager/ChairPile" unique_id=187564505 instance=ExtResource("11_yc235")]
+transform = Transform3D(0.69114196, -0.6787937, 0.24811673, 0.6388728, 0.73432904, 0.22935233, -0.33788222, 0, 0.9411884, 0.72929955, 0.03619194, -0.37223148)
 
 [node name="CutsceneDialogue" type="CanvasLayer" parent="managers/CutsceneManager" unique_id=1572251903 node_paths=PackedStringArray("_label")]
 script = ExtResource("11_kq6sy")
@@ -183,3 +203,8 @@ text = "Continue"
 layout_mode = 2
 text = "Main Menu
 "
+
+[node name="WindSound" type="AudioStreamPlayer" parent="." unique_id=864714517]
+stream = ExtResource("17_llaad")
+volume_db = -24.519
+autoplay = true
