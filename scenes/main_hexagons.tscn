@@ -99,7 +99,7 @@ size = 24.0
 far = 55.39
 
 [node name="ChairPile" type="Node3D" parent="managers/CutsceneManager" unique_id=1107189674]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.787342, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.369186, 0, 0)
 
 [node name="chair" parent="managers/CutsceneManager/ChairPile" unique_id=1320957191 instance=ExtResource("11_yc235")]
 transform = Transform3D(0.5227711, 0, -0.8524731, 0, 1, 0, 0.8524731, 0, 0.5227711, -0.36881828, -0.04725212, 0)
