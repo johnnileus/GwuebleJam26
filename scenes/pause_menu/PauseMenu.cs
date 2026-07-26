@@ -3,7 +3,10 @@ using System;
 
 public partial class PauseMenu : Control{
 	[Export] private Button _continue;
+	[Export] private Button _mainMenu;
 	[Export] private Button _quit;
+	[Export] private string _mainMenuScene;
+
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready(){
@@ -12,6 +15,7 @@ public partial class PauseMenu : Control{
 
 		_continue.Pressed += Resume;
 		_quit.Pressed += OnQuit;
+		_mainMenu.Pressed += OnMainMenu;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -36,6 +40,11 @@ public partial class PauseMenu : Control{
 	private void OnQuit(){
 		GetTree().Paused = false; 
 		GetTree().Quit(); 
+	}
+
+	private void OnMainMenu(){
+		GetTree().Paused = false; 
+		GetTree().ChangeSceneToFile(_mainMenuScene);
 	}
 	
 	

@@ -69,7 +69,8 @@ public partial class FireManager : Node{
     private Vector3 _globalOffset;
 
     [Export] private PackedScene _testBall;
-    
+
+    [Export] private GameOverUi _gameOverUi;
     private bool _fireHasStarted;   // guards the "no fire at startup = instant win" case
     private bool _gameOver;
     
@@ -93,7 +94,7 @@ public partial class FireManager : Node{
     public override void _Ready(){
 
         Instance = this;
-        
+        _gameOver = false;
         Texture2D texture = GD.Load<Texture2D>(_mapImage.GetPath());
         Image image = texture.GetImage();
         _gridW = image.GetWidth() / _interiorSize;
@@ -358,7 +359,7 @@ public partial class FireManager : Node{
                         _fireHasStarted = true;
                     }
 
-                    if (cell.State == CellState.Forest && BurningNeighbour(chunk.Current, x, y)) {
+                    if (cell.State == CellState.Forest && BurningNeighbour(_padded, x, y)) {
                         TriggerLose();
                     }
                 }
@@ -389,16 +390,15 @@ public partial class FireManager : Node{
         return false;
     }
     
-    private void TriggerWin()
-    {
+    private void TriggerWin(){
+        _gameOverUi.Show("You put out all the fires! :)");
         _gameOver = true;
     }
 
-    private void TriggerLose()
-    {
+    private void TriggerLose(){
+        _gameOverUi.Show("You let the fire get to the forest! :(");
         _gameOver = true;
     }
-
 
     private Cell CalculateCell(Cell[] chunk, Vector2I chunkPos, int x, int y, double delta){
         Cell cell = chunk[PaddedIdx(x, y)];

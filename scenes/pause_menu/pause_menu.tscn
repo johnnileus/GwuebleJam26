@@ -6,7 +6,7 @@
 font_size = 64
 font_color = Color(0.7894355, 0.78404593, 0.53608686, 1)
 
-[node name="PauseMenu" type="Control" unique_id=980596298 node_paths=PackedStringArray("_continue", "_quit")]
+[node name="PauseMenu" type="Control" unique_id=980596298 node_paths=PackedStringArray("_continue", "_mainMenu", "_quit")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +15,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_n87rw")
 _continue = NodePath("CenterContainer/VBoxContainer/Continue")
+_mainMenu = NodePath("CenterContainer/VBoxContainer/MainMenu")
 _quit = NodePath("CenterContainer/VBoxContainer/Quit")
+_mainMenuScene = "res://scenes/main_menu/main_menu.tscn"
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=370038969]
 layout_mode = 1
@@ -44,6 +46,11 @@ label_settings = SubResource("LabelSettings_uahpa")
 [node name="Continue" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1852609485]
 layout_mode = 2
 text = "Continue"
+
+[node name="MainMenu" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1143855687]
+layout_mode = 2
+text = "Main Menu
+"
 
 [node name="Quit" type="Button" parent="CenterContainer/VBoxContainer" unique_id=671679376]
 layout_mode = 2

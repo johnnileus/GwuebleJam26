@@ -30,7 +30,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=525158423]
 layout_mode = 2
-text = "Game name here"
+text = "Firebreak"
 label_settings = SubResource("LabelSettings_7wxnq")
 
 [node name="Play" type="Button" parent="CenterContainer/VBoxContainer" unique_id=278308864]

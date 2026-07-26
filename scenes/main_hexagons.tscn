@@ -11,10 +11,10 @@
 [ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="9_qxpq8"]
 [ext_resource type="Script" uid="uid://dyfgsulsw1tpr" path="res://systems/CutsceneManager.cs" id="10_5ie06"]
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="10_ttjjy"]
-[ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="11_cfynr"]
 [ext_resource type="Script" uid="uid://dp07nvm8pf73b" path="res://scenes/CutsceneDialogue.cs" id="11_kq6sy"]
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="11_vlfqm"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
+[ext_resource type="Script" uid="uid://dg77fub7tq27y" path="res://scenes/GameOverUi.cs" id="15_kq6sy"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
 font_size = 64
@@ -37,6 +37,10 @@ background_mode = 2
 sky = SubResource("Sky_8jxak")
 ssao_intensity = 4.97
 
+[sub_resource type="LabelSettings" id="LabelSettings_kq6sy"]
+font_size = 64
+font_color = Color(0.7894355, 0.78404593, 0.53608686, 1)
+
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
 [node name="managers" type="Node3D" parent="." unique_id=1096366848]
@@ -53,18 +57,19 @@ _hexMesh = ExtResource("5_yc235")
 _material = ExtResource("6_llaad")
 _yRotationDegrees = 0.0
 
-[node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_minimapNode")]
+[node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_gameOverUi", "_minimapNode")]
 script = ExtResource("7_7hbt6")
 _drawGrid = false
 _cellSize = 1.0
 _interiorSize = 16
 _mapImage = ExtResource("8_2gy6y")
 _baseSpreadChance = 0.5
-_minBurnDurationToSpread = 2.5
+_minBurnDurationToSpread = 10.0
 _burnTime = 25.0
 _moistureScale = 0.7
 _moistureOffset = 0.4
 _testBall = ExtResource("9_qxpq8")
+_gameOverUi = NodePath("../../GameOverUI")
 _minimapNode = NodePath("../../Minimap/map")
 
 [node name="CutsceneManager" type="Node3D" parent="managers" unique_id=1051140314 node_paths=PackedStringArray("_cutsceneCamera", "_chairPile", "_player", "_dialogue")]
@@ -78,7 +83,7 @@ _dialogue = NodePath("CutsceneDialogue")
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 14, 7)
 
 [node name="ChairPile" type="Node3D" parent="managers/CutsceneManager" unique_id=1107189674]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.562798, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.787342, 0, 0)
 
 [node name="CutsceneDialogue" type="CanvasLayer" parent="managers/CutsceneManager" unique_id=1572251903 node_paths=PackedStringArray("_label")]
 script = ExtResource("11_kq6sy")
@@ -97,7 +102,6 @@ label_settings = SubResource("LabelSettings_7wxnq")
 
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("10_ttjjy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 0.066461325, -0.07230425)
-_waterSplash = ExtResource("11_cfynr")
 _splashSpread = 20.0
 _splashSpeed = 20.0
 _splashUpSpeed = 12.0
@@ -137,3 +141,45 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=949337840]
 environment = SubResource("Environment_omjkn")
+
+[node name="GameOverUI" type="CanvasLayer" parent="." unique_id=265827068 node_paths=PackedStringArray("_label", "_continue", "_mainMenu")]
+script = ExtResource("15_kq6sy")
+_label = NodePath("VBoxContainer/Text")
+_continue = NodePath("VBoxContainer/Continue")
+_mainMenu = NodePath("VBoxContainer/MainMenu")
+
+[node name="ColorRect" type="ColorRect" parent="GameOverUI" unique_id=1716487306]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.8437848, 0.795963, 0.5088164, 0.07450981)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverUI" unique_id=11049257]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -266.5
+offset_top = -44.0
+offset_right = 266.5
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Text" type="Label" parent="GameOverUI/VBoxContainer" unique_id=1714392100]
+layout_mode = 2
+text = "You win/lose"
+label_settings = SubResource("LabelSettings_kq6sy")
+horizontal_alignment = 1
+
+[node name="Continue" type="Button" parent="GameOverUI/VBoxContainer" unique_id=795370544]
+layout_mode = 2
+text = "Continue"
+
+[node name="MainMenu" type="Button" parent="GameOverUI/VBoxContainer" unique_id=1925564463]
+layout_mode = 2
+text = "Main Menu
+"
