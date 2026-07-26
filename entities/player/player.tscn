@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="2_abrql"]
 [ext_resource type="PackedScene" uid="uid://cu7yapxcfipwx" path="res://entities/player/player_model.tscn" id="3_bls4j"]
 [ext_resource type="AudioStream" uid="uid://ohjmcmvk4ctm" path="res://raw_assets/fire.mp3" id="3_fkugw"]
+[ext_resource type="Texture2D" uid="uid://bwh5ji7jm5bhb" path="res://raw_assets/white.png" id="5_fkugw"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7wxnq"]
 
@@ -39,3 +40,18 @@ text = "Hold E to gather water
 "
 font_size = 64
 outline_size = 24
+
+[node name="WaterBar" type="Node3D" parent="." unique_id=525268344]
+
+[node name="background" type="Sprite3D" parent="WaterBar" unique_id=516417766]
+centered = false
+modulate = Color(0.6161237, 0.45291686, 0.35478202, 1)
+pixel_size = 0.0001
+billboard = 1
+texture = ExtResource("5_fkugw")
+
+[node name="fill" type="Sprite3D" parent="WaterBar" unique_id=409569447]
+centered = false
+modulate = Color(0.34950957, 0.5664374, 0.72908455, 1)
+billboard = 1
+texture = ExtResource("5_fkugw")

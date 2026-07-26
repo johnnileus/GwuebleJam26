@@ -571,7 +571,7 @@ public partial class FireManager : Node{
 
     private Color GetColour(Cell cell){
         if (cell.State == CellState.Unburnt) {
-            return new Color(0.15f, 0.6f - cell.Moisture, 0.1f);
+            return new Color(0.15f, 0.6f - cell.Moisture * .6f, 0.1f);
         } else if (cell.State == CellState.Burning) {
             return Colors.Yellow.Lerp(Colors.Red, Mathf.Clamp(cell.BurnTimer / _burnTime, 0f, 1f)); 
         } else if (cell.State == CellState.Burnt) {
@@ -580,7 +580,9 @@ public partial class FireManager : Node{
             return Colors.Blue;
         } else if (cell.State == CellState.Forest) {
             return new Color(0, .3f, 0);
-        } 
+        } else if (cell.State == CellState.Wet) {
+            return new Color(0.1f, 0.2f , 0.07f);
+        }
         else return Colors.Magenta;
         
     }

@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" uid="uid://b5m76ru6k4il4" path="res://entities/chair/chair.tscn" id="11_yc235"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
 [ext_resource type="Script" uid="uid://dg77fub7tq27y" path="res://scenes/GameOverUi.cs" id="15_kq6sy"]
+[ext_resource type="Texture2D" uid="uid://c64mdvw4dwn03" path="res://raw_assets/LMB.png" id="16_7hbt6"]
+[ext_resource type="Texture2D" uid="uid://ddxbfhc3e3vsm" path="res://raw_assets/RMB.png" id="17_2gy6y"]
 [ext_resource type="AudioStream" uid="uid://xdtc55nj64tp" path="res://raw_assets/wind.mp3" id="17_llaad"]
 [ext_resource type="Script" uid="uid://bq81x5l6m6oca" path="res://entities/grass/GrassManager.cs" id="18_grass"]
 [ext_resource type="ArrayMesh" uid="uid://dy1duhd0hp5nk" path="res://raw_assets/Grass.obj" id="19_grassmesh"]
@@ -32,6 +34,19 @@ size = Vector2(1000, 1000)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o6xl0"]
 albedo_color = Color(0.8156863, 0.7921569, 0.44313726, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2gy6y"]
+bg_color = Color(0.36862746, 0.20392157, 0.10980392, 0.21568628)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qxpq8"]
+bg_color = Color(0.22758853, 0.4767686, 0.78846663, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_g4v3v"]
+font_size = 32
+
+[sub_resource type="LabelSettings" id="LabelSettings_kq6sy"]
+font_size = 64
+font_color = Color(0.7894355, 0.78404593, 0.53608686, 1)
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_id6pk"]
 
 [sub_resource type="Sky" id="Sky_8jxak"]
@@ -41,10 +56,6 @@ sky_material = SubResource("ProceduralSkyMaterial_id6pk")
 background_mode = 2
 sky = SubResource("Sky_8jxak")
 ssao_intensity = 4.97
-
-[sub_resource type="LabelSettings" id="LabelSettings_kq6sy"]
-font_size = 64
-font_color = Color(0.7894355, 0.78404593, 0.53608686, 1)
 
 [node name="Node3D" type="Node3D" unique_id=1586865748]
 
@@ -74,7 +85,7 @@ _maxHeight = 2.0
 script = ExtResource("7_7hbt6")
 _drawGrid = false
 _cellSize = 1.0
-_interiorSize = 16
+_interiorSize = 32
 _mapImage = ExtResource("8_2gy6y")
 _baseSpreadChance = 0.5
 _minBurnDurationToSpread = 2.5
@@ -83,7 +94,7 @@ _moistureScale = 0.7
 _moistureOffset = 0.4
 _testBall = ExtResource("9_qxpq8")
 _gameOverUi = NodePath("../../GameOverUI")
-_minimapNode = NodePath("../../Minimap/map")
+_minimapNode = NodePath("../../GameUI/map")
 
 [node name="CutsceneManager" type="Node3D" parent="managers" unique_id=1051140314 node_paths=PackedStringArray("_cutsceneCamera", "_chairPile", "_player", "_dialogue")]
 script = ExtResource("10_5ie06")
@@ -94,9 +105,12 @@ _dialogue = NodePath("CutsceneDialogue")
 
 [node name="Camera3D" type="Camera3D" parent="managers/CutsceneManager" unique_id=418048996]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 14, 7)
+projection = 1
+size = 24.0
+far = 55.39
 
 [node name="ChairPile" type="Node3D" parent="managers/CutsceneManager" unique_id=1107189674]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.787342, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.369186, 0, 0)
 
 [node name="chair" parent="managers/CutsceneManager/ChairPile" unique_id=1320957191 instance=ExtResource("11_yc235")]
 transform = Transform3D(0.5227711, 0, -0.8524731, 0, 1, 0, 0.8524731, 0, 0.5227711, -0.36881828, -0.04725212, 0)
@@ -131,12 +145,15 @@ grow_horizontal = 2
 text = "asgasdgasd"
 label_settings = SubResource("LabelSettings_7wxnq")
 
-[node name="Player" parent="." unique_id=863245587 instance=ExtResource("10_ttjjy")]
+[node name="Player" parent="." unique_id=863245587 node_paths=PackedStringArray("_waterBar") instance=ExtResource("10_ttjjy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 0.066461325, -0.07230425)
 _splashSpread = 20.0
 _splashSpeed = 20.0
 _splashUpSpeed = 12.0
 _waterGatherRate = 500.0
+_waterBar = NodePath("../GameUI/VBoxContainer2/ProgressBar")
+_fireMinDb = -30.0
+_fireMaxDb = -20.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
@@ -151,9 +168,9 @@ surface_material_override/0 = SubResource("StandardMaterial3D_o6xl0")
 
 [node name="DebugUI" parent="." unique_id=1407234005 instance=ExtResource("11_vlfqm")]
 
-[node name="Minimap" type="CanvasLayer" parent="." unique_id=927453504]
+[node name="GameUI" type="CanvasLayer" parent="." unique_id=927453504]
 
-[node name="map" type="TextureRect" parent="Minimap" unique_id=1288998969]
+[node name="map" type="TextureRect" parent="GameUI" unique_id=1288998969]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -166,12 +183,50 @@ grow_vertical = 0
 texture = ExtResource("12_556lp")
 expand_mode = 1
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]
-transform = Transform3D(0.8367695, 0.0714435, 0.5428746, -0.442693, 0.6717494, 0.5939494, -0.32224172, -0.73732543, 0.5937268, 0, 0, 0)
-shadow_enabled = true
+[node name="VBoxContainer2" type="VBoxContainer" parent="GameUI" unique_id=1952731027]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -264.0
+offset_right = 296.0
+grow_vertical = 0
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=949337840]
-environment = SubResource("Environment_omjkn")
+[node name="ProgressBar" type="ProgressBar" parent="GameUI/VBoxContainer2" unique_id=386038176]
+custom_minimum_size = Vector2(0, 500)
+custom_maximum_size = Vector2(60, -1)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_2gy6y")
+theme_override_styles/fill = SubResource("StyleBoxFlat_qxpq8")
+value = 50.0
+fill_mode = 3
+show_percentage = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/VBoxContainer2" unique_id=1522366629]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GameUI/VBoxContainer2/VBoxContainer" unique_id=169064058]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer" unique_id=1202136501]
+layout_mode = 2
+texture = ExtResource("16_7hbt6")
+
+[node name="Label3" type="Label" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer" unique_id=486089312]
+layout_mode = 2
+text = "  Wet a Tile"
+label_settings = SubResource("LabelSettings_g4v3v")
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="GameUI/VBoxContainer2/VBoxContainer" unique_id=490326204]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=977592251]
+layout_mode = 2
+texture = ExtResource("17_2gy6y")
+
+[node name="Label3" type="Label" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=86803790]
+layout_mode = 2
+text = "  Throw Bucket"
+label_settings = SubResource("LabelSettings_g4v3v")
 
 [node name="GameOverUI" type="CanvasLayer" parent="." unique_id=265827068 node_paths=PackedStringArray("_label", "_continue", "_mainMenu")]
 script = ExtResource("15_kq6sy")
@@ -221,3 +276,10 @@ volume_db = -24.519
 autoplay = true
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="." unique_id=1543618430]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2110141821]
+transform = Transform3D(0.8367695, 0.071443476, 0.5428744, -0.442693, 0.67174935, 0.5939493, -0.32224172, -0.7373254, 0.5937269, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=949337840]
+environment = SubResource("Environment_omjkn")

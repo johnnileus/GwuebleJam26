@@ -27,8 +27,8 @@ public partial class Player : CharacterBody3D
 
     [Export] private Label3D _waterLabel;
     private bool _facingWater = false;
+    [Export] private Godot.Range _waterBar;
     
-        
     //fire sfx
     private AudioStreamPlayer3D[] _firePlayers;
     [Export] private AudioStream _fireStream;
@@ -59,7 +59,9 @@ public partial class Player : CharacterBody3D
                 _firePlayers[y * 3 + x] = p;
             }
         }
-        
+
+        _waterBar.MaxValue = _maxWater;
+
     }
 
     
@@ -100,7 +102,7 @@ public partial class Player : CharacterBody3D
         _facingWater = _fireMgr.GetCellAt(Position + Model.GlobalTransform.Basis.Z).State == CellState.Water;
         
         _waterLabel.Visible = _facingWater;
-
+        
         ManageFireSFX(delta);
         
         if (Input.IsActionJustPressed("debug_ignite")) {
@@ -138,20 +140,28 @@ public partial class Player : CharacterBody3D
             }
             
         } else if (Input.IsActionPressed("player_gatherwater")) { 
-            _isGathering = true;
 
             if (_facingWater) {
-                ModifyWater(_waterGatherRate * (float)delta);
-                PlayerAnimator.GatherWalter();
+                if (_waterGathered < _maxWater) {
+                    ModifyWater(_waterGatherRate * (float)delta);
+                    PlayerAnimator.GatherWalter();
+                    _isGathering = true;
+                }
+
+
             }
         } else if (Velocity.Length() <= 0.2f)
         {
             PlayerAnimator.Idle();
         }
-        
+
+        _waterBar.Value = _waterGathered;
+
         if(!Input.IsActionPressed("player_gatherwater")) _isGathering = false;
 
         DebugUI.Instance.AddLine($"Water gathered: {_waterGathered}/{_maxWater}");
+        
+        
     }
     
 
