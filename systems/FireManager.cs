@@ -555,7 +555,9 @@ public partial class FireManager : Node{
             return Colors.Blue;
         } else if (cell.State == CellState.Forest) {
             return new Color(0, .3f, 0);
-        } 
+        } else if (cell.State == CellState.Wet) {
+            return new Color(0.1f, 0.2f , 0.07f);
+        }
         else return Colors.Magenta;
         
     }

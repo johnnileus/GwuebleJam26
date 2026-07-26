@@ -135,11 +135,15 @@ public partial class Player : CharacterBody3D
             }
             
         } else if (Input.IsActionPressed("player_gatherwater")) { 
-            _isGathering = true;
 
             if (_facingWater) {
-                ModifyWater(_waterGatherRate * (float)delta);
-                PlayerAnimator.GatherWalter();
+                if (_waterGathered < _maxWater) {
+                    ModifyWater(_waterGatherRate * (float)delta);
+                    PlayerAnimator.GatherWalter();
+                    _isGathering = true;
+                }
+
+
             }
         } else if (Velocity.Length() <= 0.2f)
         {
