@@ -167,7 +167,6 @@ public partial class Player : CharacterBody3D
         for (int y = -1; y <= 1; y++) {
             for (int x = -1; x <= 1; x++) {
                 SetVolume(_firePlayers[i++], _fireMgr.GetChunkFireCount(centre.X + x, centre.Y + y), dt);
-                GD.Print($"{x} {y}: {_fireMgr.GetChunkFireCount(centre.X + x, centre.Y + y)}");
             }
         }
 

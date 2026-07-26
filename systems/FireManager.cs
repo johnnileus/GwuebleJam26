@@ -138,6 +138,7 @@ public partial class FireManager : Node{
                     } else if (c.R > .1f) {
                         cell.State = CellState.Burning;
                         chunk.IsOnFire = true;
+                        cell.ParticleSlot = SpawnParticlesAt(CellToWorldPos(chunk.ChunkPosition, x, y));
                     } else {
                         cell.State = CellState.Unburnt;
                         float moisture = (_noise.GetNoise2D(gx*2f, gy*2f) + _moistureOffset) * 0.5f;
@@ -235,11 +236,7 @@ public partial class FireManager : Node{
     }
     
     public void IgniteAt(Vector3 globalPos){
-        
-        var ball = _testBall.Instantiate<Node3D>();
-        ball.Position = globalPos;
-        AddChild(ball);
-        
+
         Vector3 gridPos = globalPos + _globalOffset;
 
         int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
