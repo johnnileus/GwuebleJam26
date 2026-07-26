@@ -254,6 +254,24 @@ public partial class FireManager : Node{
         HexGridRenderer.Instance?.SetCellColor(GlobalCellIndex(chunk.ChunkPosition, idx), GetColour(cell));
     }
 
+    public Vector2I GetChunkAt(Vector3 globalPos){
+        Vector3 gridPos = globalPos + _globalOffset;
+        int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
+        int gx = Mathf.RoundToInt(gridPos.X / _cellSize);
+        return new Vector2I(Mathf.FloorToInt(gx / (float)_interiorSize),
+            Mathf.FloorToInt(gy / (float)_interiorSize));
+    }
+
+    public int GetChunkFireCount(int cx, int cy){
+        FireChunk c = GetChunk(cx, cy);
+        return c?.cellsOnFire ?? 0;
+    }
+
+    public Vector3 ChunkOffset(int dx, int dy){
+        float w = _interiorSize * _cellSize;
+        return new Vector3(dx * w, 0f, dy * w * _hexRowOffset);
+    }
+    
     private int SpawnParticlesAt(Vector3 globalPos){
         return FireParticlePool.Instance?.AcquireSlot(globalPos) ?? -1;
     }

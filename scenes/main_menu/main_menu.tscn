@@ -6,37 +6,32 @@
 font_size = 64
 font_color = Color(0.7894355, 0.78404593, 0.53608686, 1)
 
-[node name="MainMenu" type="Control" unique_id=1275097955 node_paths=PackedStringArray("_play", "_quit")]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="MainMenu" type="Node3D" unique_id=1523666023 node_paths=PackedStringArray("_play", "_quit")]
 script = ExtResource("1_fsom3")
 _mainScene = "res://scenes/main_hexagons.tscn"
-_play = NodePath("CenterContainer/VBoxContainer/Play")
-_quit = NodePath("CenterContainer/VBoxContainer/Quit")
+_play = NodePath("CanvasLayer/CenterContainer/VBoxContainer/Play")
+_quit = NodePath("CanvasLayer/CenterContainer/VBoxContainer/Quit")
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1243225601]
-layout_mode = 0
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=330688829]
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer" unique_id=1243225601]
 offset_left = 477.0
 offset_top = 353.0
 offset_right = 1010.0
-offset_bottom = 476.0
+offset_bottom = 511.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=457648269]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/CenterContainer" unique_id=457648269]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=525158423]
+[node name="Title" type="Label" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=525158423]
 layout_mode = 2
 text = "Firebreak"
 label_settings = SubResource("LabelSettings_7wxnq")
 
-[node name="Play" type="Button" parent="CenterContainer/VBoxContainer" unique_id=278308864]
+[node name="Play" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=278308864]
 layout_mode = 2
 text = "Play"
 
-[node name="Quit" type="Button" parent="CenterContainer/VBoxContainer" unique_id=914843930]
+[node name="Quit" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=914843930]
 layout_mode = 2
 text = "Quit"
