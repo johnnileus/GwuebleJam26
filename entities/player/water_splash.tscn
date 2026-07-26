@@ -5,6 +5,9 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_7wxnq"]
 radius = 0.15
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vlfqm"]
+albedo_color = Color(0.251092, 0.4130824, 0.67686397, 1)
+
 [sub_resource type="SphereMesh" id="SphereMesh_7wxnq"]
 radius = 0.15
 height = 0.3
@@ -16,4 +19,5 @@ script = ExtResource("1_mrvga")
 shape = SubResource("SphereShape3D_7wxnq")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=749169933]
+material_override = SubResource("StandardMaterial3D_vlfqm")
 mesh = SubResource("SphereMesh_7wxnq")

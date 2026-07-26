@@ -452,7 +452,7 @@ public partial class FireManager : Node{
     
     private void TriggerWin(){
         if (_isMainMenu) return;
-        _gameOverUi.Show("You put out all the fires! :)");
+        _gameOverUi.Show("You saved the forest! :)");
         _gameOver = true;
         
         
@@ -577,7 +577,7 @@ public partial class FireManager : Node{
         } else if (cell.State == CellState.Burnt) {
             return new Color(0.12f, 0.1f, 0.1f);
         } else if (cell.State == CellState.Water) {
-            return Colors.Blue;
+            return new Color(0.065f, 0.103f, 0.95f);
         } else if (cell.State == CellState.Forest) {
             return new Color(0, .3f, 0);
         } else if (cell.State == CellState.Wet) {

@@ -16,6 +16,13 @@ public partial class DebugUI : CanvasLayer{
 		
 	}
 
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event.IsActionPressed("debug_toggleUI")) {
+			Visible = !Visible;
+		}
+	}
+	
 	public override void _Process(double delta){
 		AddLine($"FPS: {Engine.GetFramesPerSecond()}");
 

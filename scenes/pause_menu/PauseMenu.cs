@@ -20,8 +20,7 @@ public partial class PauseMenu : Control{
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event.IsActionPressed("player_pause"))
-		{
+		if (@event.IsActionPressed("player_pause")) {
 			if (GetTree().Paused) Resume();
 			else Pause();
 		}

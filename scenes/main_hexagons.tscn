@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://bq81x5l6m6oca" path="res://entities/grass/GrassManager.cs" id="18_grass"]
 [ext_resource type="ArrayMesh" uid="uid://dy1duhd0hp5nk" path="res://raw_assets/Grass.obj" id="19_grassmesh"]
 [ext_resource type="Material" path="res://entities/grass/GrassMaterial.tres" id="20_grassmat"]
+[ext_resource type="PackedScene" uid="uid://ck6e8uwxal5sa" path="res://scenes/pause_menu/pause_menu.tscn" id="23_556lp"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
 font_size = 64
@@ -88,7 +89,7 @@ _cellSize = 1.0
 _interiorSize = 32
 _mapImage = ExtResource("8_2gy6y")
 _baseSpreadChance = 0.5
-_minBurnDurationToSpread = 2.5
+_minBurnDurationToSpread = 5.5
 _burnTime = 25.0
 _moistureScale = 0.7
 _moistureOffset = 0.4
@@ -147,13 +148,14 @@ label_settings = SubResource("LabelSettings_7wxnq")
 
 [node name="Player" parent="." unique_id=863245587 node_paths=PackedStringArray("_waterBar") instance=ExtResource("10_ttjjy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 0.066461325, -0.07230425)
-_splashSpread = 20.0
+_splashSpread = 45.0
 _splashSpeed = 20.0
 _splashUpSpeed = 12.0
-_waterGatherRate = 500.0
+_waterGatherRate = 40.0
 _waterBar = NodePath("../GameUI/VBoxContainer2/ProgressBar")
 _fireMinDb = -30.0
 _fireMaxDb = -20.0
+_sfxLerp = 0.3
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=264442931]
 
@@ -167,6 +169,7 @@ mesh = SubResource("PlaneMesh_7wxnq")
 surface_material_override/0 = SubResource("StandardMaterial3D_o6xl0")
 
 [node name="DebugUI" parent="." unique_id=1407234005 instance=ExtResource("11_vlfqm")]
+visible = false
 
 [node name="GameUI" type="CanvasLayer" parent="." unique_id=927453504]
 
@@ -283,3 +286,5 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=949337840]
 environment = SubResource("Environment_omjkn")
+
+[node name="PauseMenu" parent="." unique_id=980596298 instance=ExtResource("23_556lp")]
