@@ -309,13 +309,9 @@ public partial class FireManager : Node{
     }
 
     private ref Cell GetCellAt(Vector3 globalPos, out Vector2I chunkPos, out int idx){
-        Vector3 gridPos = globalPos + _globalOffset;
+        GlobalGridCoordAt(globalPos, out int gx, out int gy);
 
-        int gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
         int yLocal = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
-        float rowShift = yLocal % 2 == 0 ? 0f : _cellSize / 2f;
-        int gx = Mathf.RoundToInt((gridPos.X - rowShift) / _cellSize);
-
         int cx = Mathf.FloorToInt(gx / (float)_interiorSize);
         int cy = Mathf.FloorToInt(gy / (float)_interiorSize);
 
@@ -325,6 +321,38 @@ public partial class FireManager : Node{
         idx = yLocal * _interiorSize + (gx - cx * _interiorSize);
         chunkPos = chunk.ChunkPosition;
         return ref chunk.Current[idx];
+    }
+
+    private void GlobalGridCoordAt(Vector3 globalPos, out int gx, out int gy){
+        Vector3 gridPos = globalPos + _globalOffset;
+        gy = Mathf.RoundToInt(gridPos.Z / (_cellSize * _hexRowOffset));
+        int yLocalForShift = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
+        float rowShift = yLocalForShift % 2 == 0 ? 0f : _cellSize / 2f;
+        gx = Mathf.RoundToInt((gridPos.X - rowShift) / _cellSize);
+    }
+
+    public Vector2I GetGridCoordAt(Vector3 globalPos){
+        GlobalGridCoordAt(globalPos, out int gx, out int gy);
+        return new Vector2I(gx, gy);
+    }
+
+    public IEnumerable<(Vector2I gridCoord, Vector3 worldPos, CellState state)> GetCellsAround(Vector3 centerWorldPos, int radiusCells){
+        GlobalGridCoordAt(centerWorldPos, out int centerGx, out int centerGy);
+        for (int dy = -radiusCells; dy <= radiusCells; dy++){
+            for (int dx = -radiusCells; dx <= radiusCells; dx++){
+                int gx = centerGx + dx, gy = centerGy + dy;
+                int cx = Mathf.FloorToInt(gx / (float)_interiorSize);
+                int cy = Mathf.FloorToInt(gy / (float)_interiorSize);
+                FireChunk chunk = GetChunk(cx, cy);
+                if (chunk == null) continue;
+
+                int yLocal = ((gy % _interiorSize) + _interiorSize) % _interiorSize;
+                int xLocal = gx - cx * _interiorSize;
+                Cell cell = chunk.Current[yLocal * _interiorSize + xLocal];
+                Vector3 worldPos = CellToWorldPos(chunk.ChunkPosition, xLocal, yLocal);
+                yield return (new Vector2I(gx, gy), worldPos, cell.State);
+            }
+        }
     }
     private FireChunk GetChunk(int cx, int cy){
         return cx < 0 || cx >= _gridW || cy < 0 || cy >= _gridH ? null : _chunks[cy * _gridW + cx];

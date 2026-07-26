@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://entities/grass/grass_wind.gdshader" id="1_shader"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/albedo = Color(0.19607843, 0.4392157, 0.15294118, 1)
+shader_parameter/roughness = 0.9
+shader_parameter/wind_strength = 0.12
+shader_parameter/wind_speed = 2.0
+shader_parameter/wind_direction = Vector2(1, 0.3)
+shader_parameter/wind_wave_length = 4.0
+shader_parameter/mesh_min_y = -6.273418
+shader_parameter/mesh_max_y = -1.871028

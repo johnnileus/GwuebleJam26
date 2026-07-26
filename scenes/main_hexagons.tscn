@@ -17,6 +17,9 @@
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
 [ext_resource type="Script" uid="uid://dg77fub7tq27y" path="res://scenes/GameOverUi.cs" id="15_kq6sy"]
 [ext_resource type="AudioStream" uid="uid://xdtc55nj64tp" path="res://raw_assets/wind.mp3" id="17_llaad"]
+[ext_resource type="Script" uid="uid://bq81x5l6m6oca" path="res://entities/grass/GrassManager.cs" id="18_grass"]
+[ext_resource type="ArrayMesh" uid="uid://dy1duhd0hp5nk" path="res://raw_assets/Grass.obj" id="19_grassmesh"]
+[ext_resource type="Material" path="res://entities/grass/GrassMaterial.tres" id="20_grassmat"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
 font_size = 64
@@ -58,6 +61,14 @@ script = ExtResource("4_kq6sy")
 _hexMesh = ExtResource("5_yc235")
 _material = ExtResource("6_llaad")
 _yRotationDegrees = 0.0
+
+[node name="GrassManager" type="Node" parent="managers" unique_id=-286719403]
+script = ExtResource("18_grass")
+_grassMesh = ExtResource("19_grassmesh")
+_material = ExtResource("20_grassmat")
+_poolSize = 16000
+_radiusCells = 25
+_maxHeight = 2.0
 
 [node name="FireManager" type="Node3D" parent="managers" unique_id=2062803482 node_paths=PackedStringArray("_gameOverUi", "_minimapNode")]
 script = ExtResource("7_7hbt6")
