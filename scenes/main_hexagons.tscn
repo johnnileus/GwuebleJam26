@@ -31,6 +31,12 @@ size = Vector2(1000, 1000)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o6xl0"]
 albedo_color = Color(0.8156863, 0.7921569, 0.44313726, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2gy6y"]
+bg_color = Color(0.36862746, 0.20392157, 0.10980392, 0.21568628)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qxpq8"]
+bg_color = Color(0.22758853, 0.4767686, 0.78846663, 1)
+
 [sub_resource type="LabelSettings" id="LabelSettings_g4v3v"]
 font_size = 32
 
@@ -128,12 +134,13 @@ grow_horizontal = 2
 text = "asgasdgasd"
 label_settings = SubResource("LabelSettings_7wxnq")
 
-[node name="Player" parent="." unique_id=863245587 instance=ExtResource("10_ttjjy")]
+[node name="Player" parent="." unique_id=863245587 node_paths=PackedStringArray("_waterBar") instance=ExtResource("10_ttjjy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 0.066461325, -0.07230425)
 _splashSpread = 20.0
 _splashSpeed = 20.0
 _splashUpSpeed = 12.0
 _waterGatherRate = 500.0
+_waterBar = NodePath("../GameUI/VBoxContainer2/ProgressBar")
 _fireMinDb = -30.0
 _fireMaxDb = -20.0
 
@@ -165,39 +172,47 @@ grow_vertical = 0
 texture = ExtResource("12_556lp")
 expand_mode = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="GameUI" unique_id=1522366629]
+[node name="VBoxContainer2" type="VBoxContainer" parent="GameUI" unique_id=1952731027]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -50.0
-offset_right = 170.0
+offset_top = -264.0
+offset_right = 296.0
 grow_vertical = 0
 
-[node name="TextureProgressBar" type="TextureProgressBar" parent="GameUI/VBoxContainer" unique_id=1264071598]
+[node name="ProgressBar" type="ProgressBar" parent="GameUI/VBoxContainer2" unique_id=386038176]
+custom_minimum_size = Vector2(0, 500)
+custom_maximum_size = Vector2(60, -1)
 layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_2gy6y")
+theme_override_styles/fill = SubResource("StyleBoxFlat_qxpq8")
 value = 50.0
 fill_mode = 3
+show_percentage = false
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GameUI/VBoxContainer" unique_id=169064058]
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/VBoxContainer2" unique_id=1522366629]
 layout_mode = 2
 
-[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer/HBoxContainer" unique_id=1202136501]
+[node name="HBoxContainer" type="HBoxContainer" parent="GameUI/VBoxContainer2/VBoxContainer" unique_id=169064058]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer" unique_id=1202136501]
 layout_mode = 2
 texture = ExtResource("16_7hbt6")
 
-[node name="Label3" type="Label" parent="GameUI/VBoxContainer/HBoxContainer" unique_id=486089312]
+[node name="Label3" type="Label" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer" unique_id=486089312]
 layout_mode = 2
 text = "  Wet a Tile"
 label_settings = SubResource("LabelSettings_g4v3v")
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="GameUI/VBoxContainer" unique_id=490326204]
+[node name="HBoxContainer2" type="HBoxContainer" parent="GameUI/VBoxContainer2/VBoxContainer" unique_id=490326204]
 layout_mode = 2
 
-[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer/HBoxContainer2" unique_id=977592251]
+[node name="TextureRect" type="TextureRect" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=977592251]
 layout_mode = 2
 texture = ExtResource("17_2gy6y")
 
-[node name="Label3" type="Label" parent="GameUI/VBoxContainer/HBoxContainer2" unique_id=86803790]
+[node name="Label3" type="Label" parent="GameUI/VBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=86803790]
 layout_mode = 2
 text = "  Throw Bucket"
 label_settings = SubResource("LabelSettings_g4v3v")
