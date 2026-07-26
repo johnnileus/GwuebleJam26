@@ -21,11 +21,14 @@ public partial class Player : CharacterBody3D
     private float _waterGathered = 80f;
     [Export] private float _maxWater = 80f;
     [Export] private float _waterPerUse = 10f;
-    
+
+    [Export] private Label3D _waterLabel;
+    private bool _facingWater = false;
     
 
     public override void _Ready(){
         _fireMgr = FireManager.Instance;
+        _waterLabel.Visible = false;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -57,7 +60,11 @@ public partial class Player : CharacterBody3D
     }
 
     public override void _Process(double delta){
+
+        _facingWater = _fireMgr.GetCellAt(Position + Model.GlobalTransform.Basis.Z).State == CellState.Water;
         
+        _waterLabel.Visible = _facingWater;
+
         if (Input.IsActionJustPressed("debug_ignite")) {
             _fireMgr.IgniteAt(_fireMgr.GetClickOnPlane(GetViewport().GetMousePosition()));
         } else if (Input.IsActionPressed("player_leftclick")) { // pour water
@@ -93,12 +100,10 @@ public partial class Player : CharacterBody3D
 
             }
             
-        } else if (Input.IsActionPressed("player_gatherwater")) {
-            Vector3 fwd = Model.GlobalTransform.Basis.Z;
-             Cell cell = _fireMgr.GetCellAt(Position + fwd);
-             if (cell.State == CellState.Water) {
-                 ModifyWater(_waterGatherRate * (float)delta);
-             }
+        } else if (Input.IsActionPressed("player_gatherwater")) { 
+            if (_facingWater) {
+                ModifyWater(_waterGatherRate * (float)delta);
+            }
         }
         
         DebugUI.Instance.AddLine($"Water gathered: {_waterGathered}/{_maxWater}");

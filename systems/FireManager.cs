@@ -69,7 +69,10 @@ public partial class FireManager : Node{
     private Vector3 _globalOffset;
 
     [Export] private PackedScene _testBall;
-
+    
+    private bool _fireHasStarted;   // guards the "no fire at startup = instant win" case
+    private bool _gameOver;
+    
     //minimap
     [Export] private TextureRect _minimapNode;
     private ImageTexture _minimapTex;
@@ -143,7 +146,7 @@ public partial class FireManager : Node{
 
         SetupMinimap();
 
-        _chunks[0].IsOnFire = true;
+
 
     }
     
@@ -272,10 +275,6 @@ public partial class FireManager : Node{
         state != CellState.Wet;
 
     public ref Cell GetCellAt(Vector3 globalPos){
-        var ball = _testBall.Instantiate<Node3D>();
-        ball.Position = globalPos;
-        AddChild(ball);
-
         return ref GetCellAt(globalPos, out _, out _);
     }
 
@@ -340,8 +339,7 @@ public partial class FireManager : Node{
     private int PaddedIdx(int x, int y) => (y + 1) * (_interiorSize + 2) + (x + 1);
     
     private void CalculateTick(double delta){
-
-
+        
 
         _activeChunks.Clear();
         foreach (var chunk in _chunks) {
@@ -355,7 +353,14 @@ public partial class FireManager : Node{
                 for (int x = 0; x < _interiorSize; x++) {
                     Cell cell = CalculateCell(_padded, chunk.ChunkPosition, x, y, delta);
                     chunk.Next[y * _interiorSize + x] = cell;
-                    if (cell.State == CellState.Burning) hasFire = true;
+                    if (cell.State == CellState.Burning) {
+                        hasFire = true;
+                        _fireHasStarted = true;
+                    }
+
+                    if (cell.State == CellState.Forest && BurningNeighbour(chunk.Current, x, y)) {
+                        TriggerLose();
+                    }
                 }
             }
         
@@ -364,11 +369,35 @@ public partial class FireManager : Node{
         foreach (var chunk in _activeChunks)               
             (chunk.Current, chunk.Next) = (chunk.Next, chunk.Current);
         
+        if (_fireHasStarted && !_gameOver) {
+            bool anyFire = false;
+            foreach (var c in _chunks)
+                if (c.IsOnFire) { anyFire = true; break; }
+            if (!anyFire) TriggerWin();
+        }
 
         _totalTicks++;
 
     }
+    
+    private bool BurningNeighbour(Cell[] padded, int x, int y)
+    {
+        var offsets = y % 2 == 0 ? _evenNeighbors : _oddNeighbors;
+        for (int k = 0; k < 6; k++)
+            if (padded[PaddedIdx(x + offsets[k].X, y + offsets[k].Y)].State == CellState.Burning)
+                return true;
+        return false;
+    }
+    
+    private void TriggerWin()
+    {
+        _gameOver = true;
+    }
 
+    private void TriggerLose()
+    {
+        _gameOver = true;
+    }
 
 
     private Cell CalculateCell(Cell[] chunk, Vector2I chunkPos, int x, int y, double delta){

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://kq3iiumbe5h5"]
 
 [ext_resource type="Script" uid="uid://r73tad4cifih" path="res://entities/player/Player.cs" id="1_symyc"]
+[ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="2_abrql"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7wxnq"]
 
@@ -8,9 +9,11 @@
 
 [sub_resource type="BoxMesh" id="BoxMesh_g4v3v"]
 
-[node name="Player" type="CharacterBody3D" unique_id=863245587 node_paths=PackedStringArray("Model")]
+[node name="Player" type="CharacterBody3D" unique_id=863245587 node_paths=PackedStringArray("Model", "_waterLabel")]
 script = ExtResource("1_symyc")
 Model = NodePath("Model")
+_waterSplash = ExtResource("2_abrql")
+_waterLabel = NodePath("GatherWaterlabel")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1883212739]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -31,3 +34,12 @@ transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.8660254, 0, -0.8660254, 0.4999
 projection = 1
 size = 24.0
 far = 55.39
+
+[node name="GatherWaterlabel" type="Label3D" parent="." unique_id=1264991295]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+billboard = 1
+text = "Hold E to gather water
+
+"
+font_size = 64
+outline_size = 24

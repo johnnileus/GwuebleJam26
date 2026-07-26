@@ -4,15 +4,20 @@
 [ext_resource type="Resource" uid="uid://bwmivlo8ysv2u" path="res://entities/multimesh_particles/FireLayerConfig.tres" id="2_cfynr"]
 [ext_resource type="Resource" uid="uid://dcsarc3wsk0" path="res://entities/multimesh_particles/SmokeLayerConfig.tres" id="3_5ie06"]
 [ext_resource type="Script" uid="uid://co4h0k5yg5ka2" path="res://entities/hex_grid/HexGridRenderer.cs" id="4_kq6sy"]
-[ext_resource type="CylinderMesh" path="res://entities/hex_grid/HexTile.tres" id="5_yc235"]
+[ext_resource type="CylinderMesh" uid="uid://cd3yvjdf8hw1s" path="res://entities/hex_grid/HexTile.tres" id="5_yc235"]
 [ext_resource type="Material" path="res://entities/hex_grid/HexTileMaterial.tres" id="6_llaad"]
 [ext_resource type="Script" uid="uid://y85jbw4peiin" path="res://systems/FireManager.cs" id="7_7hbt6"]
 [ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="8_2gy6y"]
 [ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="9_qxpq8"]
+[ext_resource type="Script" uid="uid://dyfgsulsw1tpr" path="res://systems/CutsceneManager.cs" id="10_5ie06"]
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="10_ttjjy"]
 [ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="11_cfynr"]
+[ext_resource type="Script" uid="uid://dp07nvm8pf73b" path="res://scenes/CutsceneDialogue.cs" id="11_kq6sy"]
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="11_vlfqm"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="12_556lp"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_7wxnq"]
+font_size = 64
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_tefeu"]
 
@@ -62,8 +67,36 @@ _moistureOffset = 0.4
 _testBall = ExtResource("9_qxpq8")
 _minimapNode = NodePath("../../Minimap/map")
 
+[node name="CutsceneManager" type="Node3D" parent="managers" unique_id=1051140314 node_paths=PackedStringArray("_cutsceneCamera", "_chairPile", "_player", "_dialogue")]
+script = ExtResource("10_5ie06")
+_cutsceneCamera = NodePath("Camera3D")
+_chairPile = NodePath("ChairPile")
+_player = NodePath("../../Player")
+_dialogue = NodePath("CutsceneDialogue")
+
+[node name="Camera3D" type="Camera3D" parent="managers/CutsceneManager" unique_id=418048996]
+transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.86602545, 0, -0.86602545, 0.49999997, 0, 14, 7)
+
+[node name="ChairPile" type="Node3D" parent="managers/CutsceneManager" unique_id=1107189674]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.562798, 0, 0)
+
+[node name="CutsceneDialogue" type="CanvasLayer" parent="managers/CutsceneManager" unique_id=1572251903 node_paths=PackedStringArray("_label")]
+script = ExtResource("11_kq6sy")
+_label = NodePath("Label")
+
+[node name="Label" type="Label" parent="managers/CutsceneManager/CutsceneDialogue" unique_id=1856687107]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -177.5
+offset_right = 177.5
+offset_bottom = 88.0
+grow_horizontal = 2
+text = "asgasdgasd"
+label_settings = SubResource("LabelSettings_7wxnq")
+
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("10_ttjjy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 0.066461325, -0.07230425)
 _waterSplash = ExtResource("11_cfynr")
 _splashSpread = 20.0
 _splashSpeed = 20.0

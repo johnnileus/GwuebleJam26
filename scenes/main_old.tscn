@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://d1ee10hjibecm" path="res://raw_assets/map_small.png" id="5_8emnm"]
 [ext_resource type="PackedScene" uid="uid://y1xjra5y0pd2" path="res://entities/test_ball.tscn" id="6_uq4kf"]
 [ext_resource type="PackedScene" uid="uid://kq3iiumbe5h5" path="res://entities/player/player.tscn" id="7_8a8kf"]
+[ext_resource type="Script" uid="uid://dyfgsulsw1tpr" path="res://systems/CutsceneManager.cs" id="7_sffo0"]
 [ext_resource type="PackedScene" uid="uid://cu4mfm3a1suic" path="res://ui/debug_ui.tscn" id="8_x6k42"]
 [ext_resource type="Texture2D" uid="uid://qy72c660deqt" path="res://icon.svg" id="9_4oeg8"]
 
@@ -40,6 +41,9 @@ _moistureScale = 0.7
 _moistureOffset = 0.4
 _testBall = ExtResource("6_uq4kf")
 _minimapNode = NodePath("../../Minimap/map")
+
+[node name="CutsceneManager" type="Node3D" parent="managers" unique_id=1392794588]
+script = ExtResource("7_sffo0")
 
 [node name="Player" parent="." unique_id=863245587 instance=ExtResource("7_8a8kf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025490284, 3.2339094, -0.07230425)
