@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class MainMenu : Control{
+public partial class MainMenu : Node3D{
 
 	[Export] private string _mainScene;
 

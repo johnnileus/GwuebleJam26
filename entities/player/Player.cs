@@ -29,6 +29,10 @@ public partial class Player : CharacterBody3D
     //fire sfx
     private AudioStreamPlayer3D[] _firePlayers;
     [Export] private AudioStream _fireStream;
+    [Export] private int _cellsForMaxVolume = 48;
+    [Export] private float _fireMinDb = -40f;
+    [Export] private float _fireMaxDb = 0f;
+    [Export] private float _sfxLerp   = .5f;
 
     public override void _Ready(){
         _fireMgr = FireManager.Instance;
@@ -36,12 +40,13 @@ public partial class Player : CharacterBody3D
         
         
         _firePlayers = new AudioStreamPlayer3D[9];
-        float spacing = 10f;
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 var p = new AudioStreamPlayer3D {
                     Stream = _fireStream,
-                    VolumeDb = -80f
+                    VolumeDb = -80f,
+                    Position = _fireMgr.ChunkOffset(x-1, y-1),
+                    PitchScale = 1f + (GD.Randf()/10f)
                 };
                 AddChild(p);
                 p.Play();
@@ -51,6 +56,7 @@ public partial class Player : CharacterBody3D
         
     }
 
+    
     public override void _PhysicsProcess(double delta)
     {
         float dt = (float)delta;
@@ -85,6 +91,8 @@ public partial class Player : CharacterBody3D
         
         _waterLabel.Visible = _facingWater;
 
+        ManageFireSFX(delta);
+        
         if (Input.IsActionJustPressed("debug_ignite")) {
             _fireMgr.IgniteAt(_fireMgr.GetClickOnPlane(GetViewport().GetMousePosition()));
         } else if (Input.IsActionPressed("player_leftclick")) { // pour water
@@ -133,4 +141,27 @@ public partial class Player : CharacterBody3D
         _waterGathered = Mathf.Clamp(_waterGathered + amt, 0.0f, _maxWater);
     }
     
+    
+    private void ManageFireSFX(double delta){
+        if (_firePlayers == null) return;
+
+        Vector2I centre = _fireMgr.GetChunkAt(GlobalPosition);
+        float dt = (float)delta;
+
+        int i = 0;
+        for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                SetVolume(_firePlayers[i++], _fireMgr.GetChunkFireCount(centre.X + x, centre.Y + y), dt);
+                GD.Print($"{x} {y}: {_fireMgr.GetChunkFireCount(centre.X + x, centre.Y + y)}");
+            }
+        }
+
+    
+    }
+
+    private void SetVolume(AudioStreamPlayer3D stream, int strength, float dt){
+        float t = Mathf.Clamp(strength / (float)_cellsForMaxVolume, 0f, 1f);
+        float targetDb = strength > 0 ? Mathf.Lerp(_fireMinDb, _fireMaxDb, t) : -80f;
+        stream.VolumeDb = Mathf.Lerp(stream.VolumeDb, targetDb, dt * _sfxLerp);
+    }
 }

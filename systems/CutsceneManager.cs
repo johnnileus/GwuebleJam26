@@ -6,7 +6,7 @@ public partial class CutsceneManager : Node3D
     [Export] private Node3D _chairPile;  
     [Export] private Player _player;
 
-    [Export] private float _panDuration = 3.0f;
+    [Export] private float _cutsceneSpeed = 5.0f;
     [Export] private CutsceneDialogue _dialogue;
 
 
@@ -27,15 +27,15 @@ public partial class CutsceneManager : Node3D
         tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
         
         tween.TweenCallback(Callable.From(() => _dialogue.Say("Someone left a pile of chairs out here...")));
-        tween.TweenProperty(_cutsceneCamera, "global_position", target, 0.3f);
-        tween.TweenInterval(0.2f);
+        tween.TweenProperty(_cutsceneCamera, "global_position", target, 3f / _cutsceneSpeed);
+        tween.TweenInterval(2f/ _cutsceneSpeed);
         
         tween.TweenCallback(Callable.From(IgniteChairs));
         tween.TweenCallback(Callable.From(() => _dialogue.Say("...now they're on fire?")));
-        tween.TweenInterval(0.3f);
+        tween.TweenInterval(3f/ _cutsceneSpeed);
         
         tween.TweenCallback(Callable.From(() => _dialogue.Say("Don't let it spread to the forest!!!")));
-        tween.TweenInterval(0.3f);
+        tween.TweenInterval(3f/ _cutsceneSpeed);
         
         tween.TweenCallback(Callable.From(() => _dialogue.Clear()));
         tween.TweenCallback(Callable.From(EndCutscene));
