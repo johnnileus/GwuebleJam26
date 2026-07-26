@@ -43,7 +43,9 @@ public class FireChunk{
 public partial class FireManager : Node{
 
     public static FireManager Instance { get; private set; }
-    
+
+
+    [Export] private bool _isMainMenu = false;
     [Export] private bool _drawGrid = true;
     
     [Export] private float _cellSize;
@@ -133,6 +135,9 @@ public partial class FireManager : Node{
                         cell.State = CellState.Water;
                     } else if (c.G > .1f) {
                         cell.State = CellState.Forest;
+                    } else if (c.R > .1f) {
+                        cell.State = CellState.Burning;
+                        chunk.IsOnFire = true;
                     } else {
                         cell.State = CellState.Unburnt;
                         float moisture = (_noise.GetNoise2D(gx*2f, gy*2f) + _moistureOffset) * 0.5f;
@@ -148,33 +153,37 @@ public partial class FireManager : Node{
             }
         }
 
-        SetupMinimap();
+        if (!_isMainMenu) SetupMinimap();
 
 
 
     }
-    
+
     public override void _Process(double delta){
 
 
-        
-        
+
+
         var t1 = Time.GetTicksUsec();
         CalculateTick(delta);
         var t2 = Time.GetTicksUsec();
-        
+
 
         FireParticlePool.Instance?.AdvanceDyingSlots(delta);
 
-        UpdateMinimap();
-        
-        if (_drawGrid)
-            DrawGrid();
-        
-        DebugUI.Instance.AddLine($"Time taken: {(t2-t1)/1000f}ms, tick: {_totalTicks}");
-        DebugUI.Instance.AddLine($"Active chunks: {_activeChunks.Count}");
-        if (FireParticlePool.Instance != null)
-            DebugUI.Instance.AddLine($"Particle systems: {FireParticlePool.Instance.ActiveSlotCount} / {FireParticlePool.Instance.MaxConcurrentCells}");
+
+
+        if (_drawGrid) DrawGrid();
+
+        if (!_isMainMenu) {
+            UpdateMinimap();
+
+            DebugUI.Instance?.AddLine($"Time taken: {(t2 - t1) / 1000f}ms, tick: {_totalTicks}");
+            DebugUI.Instance?.AddLine($"Active chunks: {_activeChunks.Count}");
+            if (FireParticlePool.Instance != null)
+                DebugUI.Instance?.AddLine(
+                    $"Particle systems: {FireParticlePool.Instance.ActiveSlotCount} / {FireParticlePool.Instance.MaxConcurrentCells}");
+        }
     }
 
     private void SetupMinimap(){
@@ -184,8 +193,10 @@ public partial class FireManager : Node{
             false,
             Image.Format.Rgba8);
         _minimapTex = ImageTexture.CreateFromImage(_minimapImage);
-        
-        _minimapNode.Texture = _minimapTex;
+
+        if (_minimapNode != null) {
+            _minimapNode.Texture = _minimapTex;
+        }
 
     }
 
@@ -415,11 +426,15 @@ public partial class FireManager : Node{
     }
     
     private void TriggerWin(){
+        if (_isMainMenu) return;
         _gameOverUi.Show("You put out all the fires! :)");
         _gameOver = true;
+        
+        
     }
 
     private void TriggerLose(){
+        if (_isMainMenu) return;
         _gameOverUi.Show("You let the fire get to the forest! :(");
         _gameOver = true;
     }
