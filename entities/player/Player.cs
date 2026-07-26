@@ -3,6 +3,8 @@ using Godot;
 
 public partial class Player : CharacterBody3D
 {
+    public static Player Instance { get; private set; }
+
     [Export] public float Speed = 5.0f;
     [Export] public float Acceleration = 40.0f;   
     [Export] public float RotationSpeed = 12.0f; 
@@ -39,6 +41,7 @@ public partial class Player : CharacterBody3D
     private PlayerAnimator animator;
 
     public override void _Ready(){
+        Instance = this;
         _fireMgr = FireManager.Instance;
         _waterLabel.Visible = false;
         
