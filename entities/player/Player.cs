@@ -19,6 +19,7 @@ public partial class Player : CharacterBody3D
 
     [Export] private float _waterGatherRate;
     private float _waterGathered = 80f;
+    private bool _isGathering = false;
     [Export] private float _maxWater = 80f;
     [Export] private float _waterPerUse = 10f;
 
@@ -34,10 +35,12 @@ public partial class Player : CharacterBody3D
     [Export] private float _fireMaxDb = 0f;
     [Export] private float _sfxLerp   = .5f;
 
+    //animation
+    private PlayerAnimator animator;
+
     public override void _Ready(){
         _fireMgr = FireManager.Instance;
         _waterLabel.Visible = false;
-        
         
         _firePlayers = new AudioStreamPlayer3D[9];
         for (int y = 0; y < 3; y++) {
@@ -72,9 +75,11 @@ public partial class Player : CharacterBody3D
         velocity.X = Mathf.MoveToward(velocity.X, targetVel.X, Acceleration * dt);
         velocity.Z = Mathf.MoveToward(velocity.Z, targetVel.Z, Acceleration * dt);
 
-        Velocity = velocity;
-        MoveAndSlide();
-
+        if(!_isGathering) 
+        {
+            Velocity = velocity;
+            MoveAndSlide();
+        }
         if (Model != null && direction != Vector3.Zero)
         {
             float targetAngle = Mathf.Atan2(direction.X, direction.Z);
@@ -82,6 +87,8 @@ public partial class Player : CharacterBody3D
                 Model.Rotation.X,
                 Mathf.LerpAngle(Model.Rotation.Y, targetAngle, RotationSpeed * dt),
                 Model.Rotation.Z);
+
+            PlayerAnimator.Walk();
         }
     }
 
@@ -128,11 +135,19 @@ public partial class Player : CharacterBody3D
             }
             
         } else if (Input.IsActionPressed("player_gatherwater")) { 
+            _isGathering = true;
+
             if (_facingWater) {
                 ModifyWater(_waterGatherRate * (float)delta);
+                PlayerAnimator.GatherWalter();
             }
+        } else if (Velocity.Length() <= 0.2f)
+        {
+            PlayerAnimator.Idle();
         }
         
+        if(!Input.IsActionPressed("player_gatherwater")) _isGathering = false;
+
         DebugUI.Instance.AddLine($"Water gathered: {_waterGathered}/{_maxWater}");
     }
     

@@ -2,18 +2,17 @@
 
 [ext_resource type="Script" uid="uid://r73tad4cifih" path="res://entities/player/Player.cs" id="1_symyc"]
 [ext_resource type="PackedScene" uid="uid://dtixbounfaat0" path="res://entities/player/water_splash.tscn" id="2_abrql"]
+[ext_resource type="PackedScene" uid="uid://cu7yapxcfipwx" path="res://entities/player/player_model.tscn" id="3_bls4j"]
+[ext_resource type="AudioStream" uid="uid://ohjmcmvk4ctm" path="res://raw_assets/fire.mp3" id="3_fkugw"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7wxnq"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_7wxnq"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_g4v3v"]
 
 [node name="Player" type="CharacterBody3D" unique_id=863245587 node_paths=PackedStringArray("Model", "_waterLabel")]
 script = ExtResource("1_symyc")
 Model = NodePath("Model")
 _waterSplash = ExtResource("2_abrql")
 _waterLabel = NodePath("GatherWaterlabel")
+_fireStream = ExtResource("3_fkugw")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1883212739]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -21,17 +20,14 @@ shape = SubResource("CapsuleShape3D_7wxnq")
 
 [node name="Model" type="Node3D" parent="." unique_id=1504343207]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Model" unique_id=1963182519]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-mesh = SubResource("CapsuleMesh_7wxnq")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="Model" unique_id=1669027870]
-transform = Transform3D(0.45000002, 0, 0, 0, 0.38, 0, 0, 0, 0.5, 0, 1.4, 0.39999998)
-mesh = SubResource("BoxMesh_g4v3v")
+[node name="PlayerModel" parent="Model" unique_id=291220868 instance=ExtResource("3_bls4j")]
+unique_name_in_owner = true
+transform = Transform3D(0.21, 0, 0, 0, 0.21, 0, 0, 0, 0.21, 0, 1.190936, 0)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=261486063]
 transform = Transform3D(1, 0, 0, 0, 0.49999997, 0.8660254, 0, -0.8660254, 0.49999997, 0, 14, 7)
 projection = 1
+current = true
 size = 24.0
 far = 55.39
 
